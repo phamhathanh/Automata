@@ -8,10 +8,12 @@ namespace Automata
 {
     class NondeterministicFiniteAutomaton : FiniteAutomaton
     {
-        public NondeterministicFiniteAutomaton(State[] states, int initialStateIndex, int[] finalStateIndexes)
-            : base(states, initialStateIndex, finalStateIndexes)
+
+
+        public NondeterministicFiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitions,
+                                                    int initialStateIndex, int[] finalStateIndexes)
+            : base(statesCount, alphabet, transitions, initialStateIndex, finalStateIndexes)
         {
-            // TODO: construct transition function
         }
 
         public override bool AcceptString(string input)

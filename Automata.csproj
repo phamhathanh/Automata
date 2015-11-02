@@ -50,6 +50,7 @@
     <Compile Include="State.cs" />
     <Compile Include="FiniteAutomaton.cs" />
     <Compile Include="Symbol.cs" />
+    <Compile Include="Transition.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
