@@ -8,14 +8,38 @@ namespace Automata
 {
     class Transition
     {
-        private readonly State current, next;
+        private readonly int currentStateIndex, nextStateIndex;
         private readonly Symbol symbol;
 
-        public Transition(State current, Symbol symbol, State next)
+        public int CurrentStateIndex
         {
-            this.current = current;
+            get
+            {
+                return currentStateIndex;
+            }
+        }
+
+        public int NextStateIndex
+        {
+            get
+            {
+                return nextStateIndex;
+            }
+        }
+
+        public Symbol Symbol
+        {
+            get
+            {
+                return symbol;
+            }
+        }
+
+        public Transition(int currentStateIndex, Symbol symbol, int nextStateIndex)
+        {
+            this.currentStateIndex = currentStateIndex;
             this.symbol = symbol;
-            this.next = next;
+            this.nextStateIndex = nextStateIndex;
         }
     }
 }

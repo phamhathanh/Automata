@@ -8,20 +8,29 @@ namespace Automata
 {
     class Alphabet
     {
-        private readonly Symbol[] characters;
+        private readonly Symbol[] symbols;
         public static Symbol epsilon = new Symbol("ε");
 
-        public Alphabet(char[] characters)
+        public Alphabet(char[] symbols)
         {
-            this.characters = (Symbol[])characters.Clone();
+            this.symbols = (Symbol[])symbols.Clone();
         }
 
         public Symbol this[int index]
         {
             get
             {
-                return characters[index];
+                return symbols[index];
             }
+        }
+
+        public bool Contains(Symbol symbol)
+        {
+            foreach (Symbol s in symbols)
+                if (s.Equals(symbol))
+                    return true;
+
+            return false;
         }
     }
 }

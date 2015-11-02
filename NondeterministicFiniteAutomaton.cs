@@ -11,8 +11,8 @@ namespace Automata
 
 
         public NondeterministicFiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitions,
-                                                    int initialStateIndex, int[] finalStateIndexes)
-            : base(statesCount, alphabet, transitions, initialStateIndex, finalStateIndexes)
+                                                    int initialStateIndex, int[] acceptingStateIndexes)
+            : base(statesCount, alphabet, transitions, initialStateIndex, acceptingStateIndexes)
         {
         }
 
