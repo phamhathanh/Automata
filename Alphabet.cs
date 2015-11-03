@@ -11,9 +11,9 @@ namespace Automata
         private readonly Symbol[] symbols;
         public static Symbol epsilon = new Symbol("ε");
 
-        public Alphabet(char[] symbols)
+        public Alphabet(Symbol[] symbols)
         {
-            this.symbols = (Symbol[])symbols.Clone();
+            this.symbols = symbols.Distinct().ToArray();
         }
 
         public Symbol this[int index]

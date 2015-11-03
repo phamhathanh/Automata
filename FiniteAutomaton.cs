@@ -41,7 +41,7 @@ namespace Automata
         private void CheckIfIndexIsValid(int index)
         {
             if (states == null)
-                throw new NullReferenceException("States collection is not yet initialized.");
+                throw new InvalidOperationException("States collection is not yet initialized.");
 
             if (index < 0 || index >= states.Length)
                 throw new ArgumentOutOfRangeException("State index is out of range.");
