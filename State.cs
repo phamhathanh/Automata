@@ -9,7 +9,7 @@ namespace Automata
     class State
     {
         private bool isWrappedUp, isAccepting;
-        private Dictionary<Symbol, List<State>> transitions;
+        private Dictionary<Symbol, List<State>> transitions = new Dictionary<Symbol, List<State>>();
 
         public bool IsAccepting
         {
@@ -37,7 +37,10 @@ namespace Automata
             List<State> transition;
             bool transitionIsDefined = transitions.TryGetValue(symbol, out transition);
             if (!transitionIsDefined)
-                transitions.Add(symbol, new List<State>());
+            {
+                transition = new List<State>();
+                transitions.Add(symbol, transition);
+            }
 
             transition.Add(next);
         }
@@ -47,7 +50,7 @@ namespace Automata
             isWrappedUp = true;
         }
 
-        public IEnumerable<State> NextStates(Symbol symbol)
+        public IEnumerable<State> GetNextStates(Symbol symbol)
         {
             List<State> transition;
             bool transitionIsDefined = transitions.TryGetValue(symbol, out transition);

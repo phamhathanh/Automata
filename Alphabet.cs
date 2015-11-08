@@ -27,8 +27,11 @@ namespace Automata
         public bool Contains(Symbol symbol)
         {
             foreach (Symbol s in symbols)
-                if (s.Equals(symbol))
+                if (symbol.Equals(s))
                     return true;
+
+            if (symbol.Equals(epsilon))
+                return true;
 
             return false;
         }
