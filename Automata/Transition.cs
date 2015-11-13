@@ -6,28 +6,28 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class Transition
+    class Transition : ITransition
     {
-        private readonly int currentStateIndex, nextStateIndex;
+        private readonly State currentState, nextState;
         private readonly Symbol symbol;
 
-        public int CurrentStateIndex
+        public IState CurrentState
         {
             get
             {
-                return currentStateIndex;
+                return currentState;
             }
         }
 
-        public int NextStateIndex
+        public IState NextState
         {
             get
             {
-                return nextStateIndex;
+                return nextState;
             }
         }
 
-        public Symbol Symbol
+        public object Symbol
         {
             get
             {
@@ -35,11 +35,11 @@ namespace Automata
             }
         }
 
-        public Transition(int currentStateIndex, Symbol symbol, int nextStateIndex)
+        public Transition(State currentState, Symbol symbol, State nextState)
         {
-            this.currentStateIndex = currentStateIndex;
+            this.currentState = currentState;
             this.symbol = symbol;
-            this.nextStateIndex = nextStateIndex;
+            this.nextState = nextState;
         }
     }
 }

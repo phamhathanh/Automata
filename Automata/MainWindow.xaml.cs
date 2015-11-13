@@ -2,6 +2,7 @@
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using Microsoft.Msagl.WpfGraphControl;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -24,48 +25,68 @@ namespace Automata
             graphViewer.BindToPanel(Panel);
             graphViewer.LayoutEditingEnabled = false;
 
-            Graph graph = new Graph();
-            var sugiyamaSettings = (SugiyamaLayoutSettings)graph.LayoutAlgorithmSettings;
-            sugiyamaSettings.NodeSeparation *= 3;
+            FiniteAutomaton automaton = TestAutomaton();
+            Graph graph = GraphFromAutomaton(automaton);
 
-            var edgeRoutingSettings = new EdgeRoutingSettings();
-            graph.LayoutAlgorithmSettings.EdgeRoutingSettings = edgeRoutingSettings;
-            
-
-            graph.AddEdge("0", "1", "0");
-            graph.AddEdge("0", "1", "2");
-            graph.AddEdge("0", "ε", "1");
-            graph.AddEdge("1", "0", "5");
-            graph.AddEdge("1", "ε", "2");
-            graph.AddEdge("2", "0", "3");
-            graph.AddEdge("3", "1", "1");
-            graph.AddEdge("3", "ε", "4");
-            graph.AddEdge("3", "ε", "5");
-            graph.AddEdge("5", "1", "4");
-            graph.AddEdge("4", "1", "3");
-
-            graph.Attr.LayerDirection = LayerDirection.TB;
-
-            graph.FindNode("0").Attr.Shape = Shape.Circle;
-            graph.FindNode("1").Attr.Shape = Shape.Circle;
-            graph.FindNode("2").Attr.Shape = Shape.Circle;
-            graph.FindNode("3").Attr.Shape = Shape.Circle;
-            graph.FindNode("4").Attr.Shape = Shape.Circle;
-            graph.FindNode("5").Attr.Shape = Shape.Circle;
-
-            graph.LayerConstraints.PinNodesToSameLayer(new[] { graph.FindNode("0"), graph.FindNode("1"), graph.FindNode("5") });
-            graph.LayerConstraints.PinNodesToSameLayer(new[] { graph.FindNode("2"), graph.FindNode("3"), graph.FindNode("4") });
-            graph.LayerConstraints.AddSequenceOfUpDownVerticalConstraint(new[] { graph.FindNode("0"), graph.FindNode("2") });
-            graph.LayerConstraints.AddSequenceOfUpDownVerticalConstraint(new[] { graph.FindNode("1"), graph.FindNode("3") });
-            graph.LayerConstraints.AddSequenceOfUpDownVerticalConstraint(new[] { graph.FindNode("5"), graph.FindNode("4") });
+            graph.Attr.LayerDirection = LayerDirection.LR;
 
             graphViewer.Graph = graph;
         }
 
-        private Graph GraphFromAutomaton(FiniteAutomaton automaton)
+
+        private Graph GraphFromAutomaton(IAutomaton automaton)
         {
             Graph graph = new Graph();
+
+            Dictionary<IState, Node> nodesByState = new Dictionary<IState, Node>();
+            foreach (IState state in automaton.States)
+            {
+                Node node = new Node(nodesByState.Count.ToString());
+                if (state.IsAccepting)
+                    node.Attr.Shape = Shape.DoubleCircle;
+                else
+                    node.Attr.Shape = Shape.Circle;
+
+                nodesByState.Add(state, node);
+                graph.AddNode(node);
+            }
+            
+            foreach (var transition in automaton.Transitions)
+            {
+                IState currentState = transition.CurrentState,
+                          nextState = transition.NextState;
+                Node currentNode = nodesByState[currentState],
+                        nextNode = nodesByState[nextState];
+                object symbol = transition.Symbol;
+
+                Edge edge = new Edge(currentNode, nextNode, ConnectionToGraph.Connected);
+                edge.LabelText = symbol.ToString();
+
+                if (currentNode != nextNode)
+                    currentNode.AddOutEdge(edge);
+                else
+                    currentNode.AddSelfEdge(edge);
+            }
+
             return graph;
+        }
+
+        private FiniteAutomaton TestAutomaton()
+        {
+            TransitionInfo[] infos = new TransitionInfo[] { new TransitionInfo(0, '1', 0),
+                                                            new TransitionInfo(0, '1', 2),
+                                                            new TransitionInfo(0, 'ε', 1),
+                                                            new TransitionInfo(1, '0', 5),
+                                                            new TransitionInfo(1, 'ε', 2),
+                                                            new TransitionInfo(2, '0', 3),
+                                                            new TransitionInfo(3, '1', 1),
+                                                            new TransitionInfo(3, 'ε', 4),
+                                                            new TransitionInfo(3, 'ε', 5),
+                                                            new TransitionInfo(5, '1', 4),
+                                                            new TransitionInfo(4, '1', 3) };
+
+            Alphabet alphabet = new Alphabet(new Symbol[] { '0', '1' });
+            return new FiniteAutomaton(6, alphabet, infos, 0, new int[] { 4, 5 });
         }
     }
 }

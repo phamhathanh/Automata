@@ -1,31 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Automata
 {
-    class FiniteAutomaton
+    class FiniteAutomaton : IAutomaton
     {
         private readonly Alphabet alphabet;
+        private readonly State[] states;
         private readonly State initialState;
+        private readonly List<Transition> transitions;
 
-        public FiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitions,
+        public IEnumerable<IState> States
+        {
+            get
+            {
+                foreach (State state in states)
+                    yield return state;
+            }
+        }
+
+        public IEnumerable<ITransition> Transitions
+        {
+            get
+            {
+                foreach (Transition transition in transitions)
+                    yield return transition;
+            }
+        }
+
+        public FiniteAutomaton(int statesCount, Alphabet alphabet, TransitionInfo[] transitionInfos,
                                                     int initialStateIndex, int[] acceptingStateIndexes)
         {
             this.alphabet = alphabet;
-            State[] states = new State[statesCount];
+
+            this.states = new State[statesCount];
             for (int i = 0; i < statesCount; i++)
                 states[i] = new State();
-            this.initialState = GetState(states, initialStateIndex);
 
-            foreach (Transition transition in transitions)
-                AddTransition(states, transition);
+            this.initialState = GetState(initialStateIndex);
+
+            int transitionsCount = transitionInfos.Length;
+            this.transitions = new List<Transition>(transitionsCount);
+            foreach (var info in transitionInfos)
+                AddTransition(info);
             
             for (int i = 0; i < acceptingStateIndexes.Length; i++)
             {
-                State state = GetState(states, acceptingStateIndexes[i]);
+                State state = GetState(acceptingStateIndexes[i]);
                 state.IsAccepting = true;
             }
 
@@ -33,18 +54,20 @@ namespace Automata
                 state.WrapUp();
         }
 
-        private void AddTransition(State[] states, Transition transition)
+        private void AddTransition(TransitionInfo info)
         {
-            State currentState = GetState(states, transition.CurrentStateIndex),
-                    nextState = GetState(states, transition.NextStateIndex);
-
-            if (!alphabet.Contains(transition.Symbol))
+            if (!alphabet.Contains(info.Symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
 
-            currentState.AddTransition(transition.Symbol, nextState);
+            State currentState = GetState(info.CurrentStateIndex),
+                    nextState = GetState(info.NextStateIndex);
+            Symbol symbol = info.Symbol;
+
+            currentState.AddTransition(symbol, nextState);
+            transitions.Add(new Transition(currentState, symbol, nextState));
         }
 
-        private State GetState(State[] states, int stateIndex)
+        private State GetState(int stateIndex)
         {
             if (stateIndex < 0 || stateIndex >= states.Length)
                 throw new ArgumentOutOfRangeException("State index is out of range.");
@@ -52,7 +75,7 @@ namespace Automata
             return states[stateIndex];
         }
 
-        public virtual bool AcceptString(string input)
+        public bool AcceptString(string input)
         {
             IEnumerable<State> currentStates = new State[] { initialState };
             foreach (Symbol symbol in input)
@@ -77,24 +100,20 @@ namespace Automata
 
         private IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
         {
-            Queue<State> consideredStates = new Queue<State>(states);
-            List<State> closure = new List<State>(consideredStates.Count);
+            Queue<State> beingConsideredStates = new Queue<State>(states);
+            List<State> closure = new List<State>(beingConsideredStates.Count);
 
-            while (consideredStates.Count != 0)
+            while (beingConsideredStates.Count != 0)
             {
-                State state = consideredStates.Dequeue();
+                State state = beingConsideredStates.Dequeue();
                 closure.Add(state);
+                yield return state;
 
                 IEnumerable<State> epsilonStates = state.GetNextStates(Alphabet.epsilon);
                 foreach (State epsilonState in epsilonStates)
                     if (!closure.Contains(epsilonState))
-                        consideredStates.Enqueue(epsilonState);
+                        beingConsideredStates.Enqueue(epsilonState);
             }
-
-            foreach (State state in closure)
-                yield return state;
-
-            // TODO: lazy iteration?
         }
 
         private bool HasAcceptingState(IEnumerable<State> states)
