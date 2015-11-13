@@ -10,19 +10,16 @@ namespace Automata
 {
     public partial class MainWindow : Window
     {
-        DockPanel Panel = new DockPanel();
-
         public MainWindow()
         {
             InitializeComponent();
-            this.Content = Panel;
             Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             GraphViewer graphViewer = new GraphViewer();
-            graphViewer.BindToPanel(Panel);
+            graphViewer.BindToPanel(graphPanel);
             graphViewer.LayoutEditingEnabled = false;
 
             FiniteAutomaton automaton = TestAutomaton();
@@ -32,7 +29,6 @@ namespace Automata
 
             graphViewer.Graph = graph;
         }
-
 
         private Graph GraphFromAutomaton(IAutomaton automaton)
         {
