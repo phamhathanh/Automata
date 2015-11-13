@@ -98,7 +98,7 @@ namespace Automata
             }
         }
 
-        private IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
+        public IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
         {
             Queue<State> beingConsideredStates = new Queue<State>(states);
             List<State> closure = new List<State>(beingConsideredStates.Count);

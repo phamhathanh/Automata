@@ -73,20 +73,33 @@ namespace Automata
 
         private FiniteAutomaton TestAutomaton()
         {
-            TransitionInfo[] infos = new TransitionInfo[] { new TransitionInfo(0, '1', 0),
-                                                            new TransitionInfo(0, '1', 2),
+            TransitionInfo[] infos = new TransitionInfo[] { new TransitionInfo(0, 'a', 1),
+                                                            new TransitionInfo(0, 'b', 1),
+                                                            new TransitionInfo(0, 'ε', 3),
+                                                            new TransitionInfo(0, 'ε', 4),
                                                             new TransitionInfo(0, 'ε', 1),
-                                                            new TransitionInfo(1, '0', 5),
+                                                            new TransitionInfo(1, 'a', 0),
                                                             new TransitionInfo(1, 'ε', 2),
-                                                            new TransitionInfo(2, '0', 3),
-                                                            new TransitionInfo(3, '1', 1),
+                                                            new TransitionInfo(2, 'a', 1),
+                                                            new TransitionInfo(2, 'a', 2),
+                                                            new TransitionInfo(3, 'a', 4),
+                                                            new TransitionInfo(3, 'b', 3),
                                                             new TransitionInfo(3, 'ε', 4),
-                                                            new TransitionInfo(3, 'ε', 5),
-                                                            new TransitionInfo(5, '1', 4),
-                                                            new TransitionInfo(4, '1', 3) };
+                                                            new TransitionInfo(4, 'b', 3) };
 
-            Alphabet alphabet = new Alphabet(new Symbol[] { '0', '1' });
-            return new FiniteAutomaton(6, alphabet, infos, 0, new int[] { 4, 5 });
+            Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
+            FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
+
+            IEnumerable<State> test = NFA.Move(new State[] { NFA.GetInitialState() }, new Symbol('a'));
+            test = NFA.EpsilonClosure(new State[] { NFA.GetInitialState() });
+            int kdf = 0;
+            foreach (State _test in test)
+            {
+                kdf++;
+            }
+            MessageBox.Show(kdf + "");
+
+            return NFA;
         }
     }
 }

@@ -23,7 +23,8 @@ namespace Automata
 
             // Initialize graph with δ*(q0, epsilon)
             conversionGraph.Add(0, input.PEpsilonClosure(new State[] { input.GetInitialState() }));
-            
+            queue.Enqueue(0);
+
             Alphabet alphabet = input.GetAlphabet();
 
             while (queue.Count != 0)
