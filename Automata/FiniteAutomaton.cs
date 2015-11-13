@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class FiniteAutomaton
+    partial class FiniteAutomaton
     {
         protected readonly Alphabet alphabet;
         protected readonly State initialState;
