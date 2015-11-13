@@ -14,6 +14,8 @@ namespace Automata
 
         public DFAConverter(FiniteAutomaton input)
         {
+            this.input = input;
+
             conversionGraph = new Dictionary<int, IEnumerable<State>>();
             queue = new Queue<int>();
             List<Transition> transitions = new List<Transition>();
