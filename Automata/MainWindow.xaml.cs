@@ -83,18 +83,6 @@ namespace Automata
                                                             new TransitionInfo(3, 'ε', 4),
                                                             new TransitionInfo(4, 'b', 3) };
 
-            Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
-            FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
-
-            IEnumerable<State> test = NFA.Move(new State[] { NFA.GetInitialState() }, new Symbol('a'));
-            test = NFA.EpsilonClosure(new State[] { NFA.GetInitialState() });
-            int kdf = 0;
-            foreach (State _test in test)
-            {
-                kdf++;
-            }
-            MessageBox.Show(kdf + "");
-
             return NFA;
         }
     }

@@ -98,21 +98,25 @@ namespace Automata
             }
         }
 
-        public IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
+        private IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
         {
-            Queue<State> beingConsideredStates = new Queue<State>(states);
-            List<State> closure = new List<State>(beingConsideredStates.Count);
+            Queue<State> toBeConsideredStates = new Queue<State>(states);
+            List<State> closure = new List<State>(toBeConsideredStates.Count);
 
-            while (beingConsideredStates.Count != 0)
+            while (toBeConsideredStates.Count != 0)
             {
-                State state = beingConsideredStates.Dequeue();
+                State state = toBeConsideredStates.Dequeue();
                 closure.Add(state);
                 yield return state;
 
                 IEnumerable<State> epsilonStates = state.GetNextStates(Alphabet.epsilon);
                 foreach (State epsilonState in epsilonStates)
-                    if (!closure.Contains(epsilonState))
-                        beingConsideredStates.Enqueue(epsilonState);
+                {
+                    bool stateIsAlreadyInClosure = closure.Contains(epsilonState),
+                         stateIsBeingConsidered = toBeConsideredStates.Contains(epsilonState);
+                    if (!stateIsAlreadyInClosure && !stateIsBeingConsidered)
+                        toBeConsideredStates.Enqueue(epsilonState);
+                }
             }
         }
 
