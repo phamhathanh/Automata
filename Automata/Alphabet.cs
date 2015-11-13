@@ -10,6 +10,13 @@ namespace Automata
     {
         private readonly Symbol[] symbols;
         public static readonly Symbol epsilon = new Symbol("ε");
+        public int Length
+        {
+            get
+            {
+                return symbols.Length;
+            }
+        }
 
         public Alphabet(Symbol[] symbols)
         {
