@@ -67,7 +67,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+<<<<<<< HEAD
     <Compile Include="DFAConverter.cs" />
+=======
+    <Compile Include="IAutomaton.cs" />
+    <Compile Include="IState.cs" />
+    <Compile Include="ITransition.cs" />
+>>>>>>> origin/master
     <Compile Include="State.cs" />
     <Compile Include="Symbol.cs" />
     <Compile Include="Transition.cs" />

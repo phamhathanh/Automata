@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class State
+    class State : IState
     {
         private bool isWrappedUp, isAccepting;
         private Dictionary<Symbol, List<State>> transitions = new Dictionary<Symbol, List<State>>();
