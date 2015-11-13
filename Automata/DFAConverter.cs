@@ -18,7 +18,7 @@ namespace Automata
 
             conversionGraph = new Dictionary<int, IEnumerable<State>>();
             queue = new Queue<int>();
-            List<Transition> transitions = new List<Transition>();
+            List<TransitionInfo> transitions = new List<TransitionInfo>();
             List<int> accepting_indexes = new List<int>();
 
             // Initialize graph with δ*(q0, epsilon)
@@ -49,11 +49,11 @@ namespace Automata
                         if (IsDFAStateAccepting(nextState))
                             accepting_indexes.Add(nextState);
 
-                        transitions.Add(new Transition(state, sym, conversionGraph.Count - 1));
+                        transitions.Add(new TransitionInfo(state, sym, conversionGraph.Count - 1));
                     }
                     else
                     {
-                        transitions.Add(new Transition(state, sym, DFAState));
+                        transitions.Add(new TransitionInfo(state, sym, DFAState));
                     }
                 }
             }
