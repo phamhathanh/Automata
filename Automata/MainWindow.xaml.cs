@@ -30,6 +30,7 @@ namespace Automata
 
             var edgeRoutingSettings = new EdgeRoutingSettings();
             graph.LayoutAlgorithmSettings.EdgeRoutingSettings = edgeRoutingSettings;
+            
 
             graph.AddEdge("0", "1", "0");
             graph.AddEdge("0", "1", "2");
@@ -58,8 +59,13 @@ namespace Automata
             graph.LayerConstraints.AddSequenceOfUpDownVerticalConstraint(new[] { graph.FindNode("1"), graph.FindNode("3") });
             graph.LayerConstraints.AddSequenceOfUpDownVerticalConstraint(new[] { graph.FindNode("5"), graph.FindNode("4") });
 
-
             graphViewer.Graph = graph;
+        }
+
+        private Graph GraphFromAutomaton(FiniteAutomaton automaton)
+        {
+            Graph graph = new Graph();
+            return graph;
         }
     }
 }

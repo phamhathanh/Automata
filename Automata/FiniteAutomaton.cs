@@ -8,8 +8,8 @@ namespace Automata
 {
     class FiniteAutomaton
     {
-        protected readonly Alphabet alphabet;
-        protected readonly State initialState;
+        private readonly Alphabet alphabet;
+        private readonly State initialState;
 
         public FiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitions,
                                                     int initialStateIndex, int[] acceptingStateIndexes)
