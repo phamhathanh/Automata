@@ -3,6 +3,7 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using Microsoft.Msagl.WpfGraphControl;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -10,17 +11,20 @@ namespace Automata
 {
     public partial class MainWindow : Window
     {
+        private GraphViewer graphViewer;
+        public ObservableCollection<Node> Nodes { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            GraphViewer graphViewer = new GraphViewer();
-            graphViewer.BindToPanel(graphPanel);
-            graphViewer.LayoutEditingEnabled = false;
+            graphViewer = new GraphViewer();
+            graphViewer.BindToPanel(graphViewPanel);
 
             FiniteAutomaton automaton = TestAutomaton();
             Graph graph = GraphFromAutomaton(automaton);

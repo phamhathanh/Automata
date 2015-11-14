@@ -9,7 +9,7 @@ namespace Automata
     class Alphabet
     {
         private readonly Symbol[] symbols;
-        public static readonly Symbol epsilon = new Symbol("ε");
+        public static readonly Symbol Epsilon = new Symbol("ε");
         public int Length
         {
             get
@@ -20,7 +20,10 @@ namespace Automata
 
         public Alphabet(Symbol[] symbols)
         {
-            this.symbols = symbols.Distinct().ToArray();
+            var validSymbols = from symbol in symbols
+                               where symbol != Epsilon
+                               select symbol;
+            this.symbols = validSymbols.Distinct().ToArray();
         }
 
         public Symbol this[int index]
@@ -37,7 +40,7 @@ namespace Automata
                 if (symbol.Equals(s))
                     return true;
 
-            if (symbol.Equals(epsilon))
+            if (symbol.Equals(Epsilon))
                 return true;
 
             return false;

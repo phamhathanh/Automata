@@ -109,7 +109,7 @@ namespace Automata
                 closure.Add(state);
                 yield return state;
 
-                IEnumerable<State> epsilonStates = state.GetNextStates(Alphabet.epsilon);
+                IEnumerable<State> epsilonStates = state.GetNextStates(Alphabet.Epsilon);
                 foreach (State epsilonState in epsilonStates)
                 {
                     bool stateIsAlreadyInClosure = closure.Contains(epsilonState),
