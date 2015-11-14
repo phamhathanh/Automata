@@ -84,14 +84,10 @@ namespace Automata
             Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
             FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
 
-<<<<<<< HEAD
             DFAConverter converter = new DFAConverter(NFA);
             FiniteAutomaton DFA = converter.GetOutputDFA();
 
             return DFA;
-=======
-            return NFA;
->>>>>>> origin/master
         }
     }
 }
