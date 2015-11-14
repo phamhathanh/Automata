@@ -8,68 +8,71 @@ namespace Automata
 {
     class DFAConverter
     {
-        private FiniteAutomaton input, output;
-        private Dictionary<int, IEnumerable<State>> conversionGraph; // Indicates which NFA nodes in a DFA node
-        private Queue<int> queue;
+        private FiniteAutomaton inputNFA, outputDFA;
+        private Dictionary<int, IEnumerable<State>> stateConversionGraph; // Indicates which NFA nodes in a DFA node
+        private Queue<int> dfaUnvisitedStateIndexes;
 
         public DFAConverter(FiniteAutomaton input)
         {
-            this.input = input;
+            this.inputNFA = input;
 
-            conversionGraph = new Dictionary<int, IEnumerable<State>>();
-            queue = new Queue<int>();
-            List<TransitionInfo> transitions = new List<TransitionInfo>();
-            List<int> accepting_indexes = new List<int>();
+            stateConversionGraph = new Dictionary<int, IEnumerable<State>>();
+            dfaUnvisitedStateIndexes = new Queue<int>();
+            List<TransitionInfo> dfaTransitionInfos = new List<TransitionInfo>();
+            List<int> dfaAcceptingStateIndexes = new List<int>();
 
             // Initialize graph with δ*(q0, epsilon)
-            conversionGraph.Add(0, input.PEpsilonClosure(new State[] { input.GetInitialState() }));
-            queue.Enqueue(0);
+            stateConversionGraph.Add(0, input.PEpsilonClosure(new State[] { input.GetInitialState() }));
+            dfaUnvisitedStateIndexes.Enqueue(0);
 
             Alphabet alphabet = input.GetAlphabet();
 
-            while (queue.Count != 0)
+            while (dfaUnvisitedStateIndexes.Count != 0)
             {
-                int state = queue.Dequeue();
+                int dfaStateIndex = dfaUnvisitedStateIndexes.Dequeue();
 
                 for (int i = 0; i < alphabet.Length; i++)
                 {
                     Symbol sym = alphabet[i];
-                    IEnumerable<State> nextSymState = input.Move(conversionGraph[state], sym);
+                    IEnumerable<State> correspondingNFAStates = input.Move(stateConversionGraph[dfaStateIndex], sym);
                     // Check if DFA State Exists
-                    int DFAState = CheckDFAState(nextSymState);
-                    if (DFAState == -1)
+                    if (correspondingNFAStates.Count() > 0)
                     {
-                        // Create a new one
-                        int nextState = conversionGraph.Count;
-                        
-                        // Add to Dictionary
-                        conversionGraph.Add(nextState, nextSymState);
+                        int DFAState = GetDFAStateIndexFromNFAStates(correspondingNFAStates);
+                        if (DFAState == -1)
+                        {
+                            // Create a new one
+                            int nextState = stateConversionGraph.Count;
 
-                        queue.Enqueue(nextState);
+                            // Add to Dictionary
+                            stateConversionGraph.Add(nextState, correspondingNFAStates);
 
-                        if (IsDFAStateAccepting(nextState))
-                            accepting_indexes.Add(nextState);
+                            dfaUnvisitedStateIndexes.Enqueue(nextState);
 
-                        transitions.Add(new TransitionInfo(state, sym, conversionGraph.Count - 1));
-                    }
-                    else
-                    {
-                        transitions.Add(new TransitionInfo(state, sym, DFAState));
+                            if (IsDFAStateAccepting(nextState))
+                                dfaAcceptingStateIndexes.Add(nextState);
+
+                            dfaTransitionInfos.Add(new TransitionInfo(dfaStateIndex, sym, stateConversionGraph.Count - 1));
+                        }
+                        else
+                        {
+                            dfaTransitionInfos.Add(new TransitionInfo(dfaStateIndex, sym, DFAState));
+                        }
                     }
                 }
             }
 
-            output = new FiniteAutomaton(conversionGraph.Count, alphabet, transitions.ToArray(), 0, accepting_indexes.ToArray());
+            outputDFA = new FiniteAutomaton(stateConversionGraph.Count, alphabet, dfaTransitionInfos.ToArray(), 0, dfaAcceptingStateIndexes.ToArray());
         }
 
-        public FiniteAutomaton getResult()
+        public FiniteAutomaton GetOutputDFA()
         {
-            return output;
+            return outputDFA;
         }
 
-        private int CheckDFAState(IEnumerable<State> newState)
+        private int GetDFAStateIndexFromNFAStates(IEnumerable<State> newState)
         {
-            foreach (var record in conversionGraph)
+            foreach (var record in stateConversionGraph)
             {
                 IEnumerable<State> state = record.Value;
                 if (state.Count() == newState.Count() && state.Intersect(newState).Count() == newState.Count())
@@ -81,7 +84,7 @@ namespace Automata
         private bool IsDFAStateAccepting(int DFAState)
         {
             IEnumerable<State> NFAstates;
-            if (conversionGraph.TryGetValue(DFAState, out NFAstates))
+            if (stateConversionGraph.TryGetValue(DFAState, out NFAstates))
             {
                 foreach (State NFAState in NFAstates)
                 {

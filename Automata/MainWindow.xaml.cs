@@ -72,8 +72,6 @@ namespace Automata
             TransitionInfo[] infos = new TransitionInfo[] { new TransitionInfo(0, 'a', 1),
                                                             new TransitionInfo(0, 'b', 1),
                                                             new TransitionInfo(0, 'ε', 3),
-                                                            new TransitionInfo(0, 'ε', 4),
-                                                            new TransitionInfo(0, 'ε', 1),
                                                             new TransitionInfo(1, 'a', 0),
                                                             new TransitionInfo(1, 'ε', 2),
                                                             new TransitionInfo(2, 'a', 1),
@@ -83,7 +81,13 @@ namespace Automata
                                                             new TransitionInfo(3, 'ε', 4),
                                                             new TransitionInfo(4, 'b', 3) };
 
-            return NFA;
+            Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
+            FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
+
+            DFAConverter converter = new DFAConverter(NFA);
+            FiniteAutomaton DFA = converter.GetOutputDFA();
+
+            return DFA;
         }
     }
 }
