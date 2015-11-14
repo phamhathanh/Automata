@@ -18,7 +18,6 @@ namespace Automata
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
-
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -32,6 +31,8 @@ namespace Automata
             graph.Attr.LayerDirection = LayerDirection.LR;
 
             graphViewer.Graph = graph;
+
+            InitialStateComboBox.ItemsSource = graph.Nodes;
         }
 
         private Graph GraphFromAutomaton(IAutomaton automaton)

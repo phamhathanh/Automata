@@ -3,11 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:control="clr-namespace:Microsoft.Msagl.WpfGraphControl;assembly=Microsoft.Msagl.WpfGraphControl"
+        xmlns:drawing="clr-namespace:Microsoft.Msagl.Drawing;assembly=Microsoft.Msagl.Drawing"
         xmlns:local="clr-namespace:Automata"
         mc:Ignorable="d"
-        Title="Automata" Height="350" Width="525" WindowState="Maximized">
-    <Grid>
+        Title="Automata" Height="350" Width="525" WindowState="Maximized" Loaded="MainWindow_Loaded">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type drawing:Node}">
+            <TextBlock Text="{Binding LabelText}"/>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -52,10 +57,10 @@
                 </ComboBox>
                 <Button Grid.Column="3">Add</Button>
                 <Label Grid.Column="4">Initial</Label>
-                <ComboBox Grid.Column="5">
+                <ComboBox Name="InitialStateComboBox" Grid.Column="5">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Nodes}" />
+                            <TextBlock Text="{Binding LabelText}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -72,16 +77,26 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0">From</Label>
-                <ComboBox Grid.Column="1">
-                </ComboBox>
+                <ComboBox Grid.Column="1"></ComboBox>
                 <Label Grid.Column="2">To</Label>
-                <ComboBox Grid.Column="3">1,2,3</ComboBox>
+                <ComboBox Grid.Column="3"></ComboBox>
                 <Label Grid.Column="4">Symbol</Label>
                 <ComboBox Grid.Column="5"></ComboBox>
                 <Button Grid.Column="6">Add</Button>
             </Grid>
-            <Label Grid.Row="3" Grid.Column="0">Layout</Label>
-            <Button Grid.Row="3" Grid.Column="1" DockPanel.Dock="Right">Reset</Button>
+            <Label Grid.Row="3" Grid.Column="0">Input string</Label>
+            <Grid Grid.Row="3" Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"></TextBox>
+                <Button Grid.Column="1">Check</Button>
+                <Label Grid.Column="2">Accepted</Label>
+                <Button Grid.Column="3">Reset layout</Button>
+            </Grid>
         </Grid>
         <DockPanel Name="graphViewPanel" Grid.Row="1" Panel.ZIndex="-1" ClipToBounds="True" IsHitTestVisible="False"/>
     </Grid>
