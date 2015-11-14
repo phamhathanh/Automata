@@ -13,5 +13,7 @@ namespace Automata
         {
             get;
         }
+
+        bool AcceptString(string input);
     }
 }

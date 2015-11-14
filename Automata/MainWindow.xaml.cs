@@ -83,6 +83,9 @@ namespace Automata
                                                             new TransitionInfo(3, 'ε', 4),
                                                             new TransitionInfo(4, 'b', 3) };
 
+            Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
+            FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
+
             return NFA;
         }
     }

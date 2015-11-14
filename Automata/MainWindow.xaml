@@ -9,13 +9,26 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <DockPanel Name="mainPanel">
-            <WrapPanel Name="toolBar" DockPanel.Dock="Top">
-                <Button>Do stuffs</Button>
-                <ComboBox>fdfd</ComboBox>
-                <Label>Name</Label>
-                <TextBox/>
-            </WrapPanel>
-            <DockPanel Name="graphPanel" Panel.ZIndex="-1"/>
+            <DockPanel Name="toolBar" Dock="Top" LastChildFill="False">
+                <Label>State</Label>
+                <TextBox></TextBox>
+                <Button>Add</Button>
+                <Separator></Separator>
+                <Label>Transition</Label>
+                <ComboBox>
+                    <ComboBoxItem>ComboBox Item #1</ComboBoxItem>
+                    <ComboBoxItem IsSelected="True">ComboBox Item #2</ComboBoxItem>
+                    <ComboBoxItem>ComboBox Item #3</ComboBoxItem>
+                </ComboBox>
+                <Label>To</Label>
+                <ComboBox>1,2,3</ComboBox>
+                <Label>Symbol</Label>
+                <ComboBox></ComboBox>
+                <Button>Add</Button>
+                <Button DockPanel.Dock="Right">Reset</Button>
+                <Button DockPanel.Dock="Right">Clear</Button>
+            </DockPanel>
+            <DockPanel Name="graphPanel" Panel.ZIndex="-1" ClipToBounds="True" IsHitTestVisible="False"/>
         </DockPanel>
     </Grid>
 </Window>
