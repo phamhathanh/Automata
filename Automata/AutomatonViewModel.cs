@@ -11,7 +11,7 @@ namespace Automata
     class AutomatonViewModel
     {
         private Graph graph;
-        private IAutomaton automaton;
+        private FiniteAutomaton automaton;
 
         public AutomatonViewModel()
         {

@@ -33,7 +33,7 @@ namespace Automata
             //InitialStateComboBox.ItemsSource = graph.Nodes;
         }
 
-        private Graph GraphFromAutomaton(IAutomaton automaton)
+        private Graph GraphFromAutomaton(FiniteAutomaton automaton)
         {
             Graph graph = new Graph();
 

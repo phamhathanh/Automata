@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Automata
 {
-    partial class FiniteAutomaton : IAutomaton
+    partial class FiniteAutomaton
     {
         private readonly Alphabet alphabet;
         private readonly State[] states;
