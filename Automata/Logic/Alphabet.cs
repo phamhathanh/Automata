@@ -20,10 +20,10 @@ namespace Automata
 
         public Alphabet(Symbol[] symbols)
         {
-            var validSymbols = from symbol in symbols
-                               where symbol != Epsilon
-                               select symbol;
-            this.symbols = validSymbols.Distinct().ToArray();
+            if (symbols.Contains(Epsilon))
+                throw new ArgumentException("Alphabet cannot contain the epsilon symbol.");
+
+            this.symbols = symbols.Distinct().ToArray();
         }
 
         public Symbol this[int index]

@@ -2,6 +2,7 @@
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using Microsoft.Msagl.WpfGraphControl;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -11,18 +12,25 @@ namespace Automata
 {
     public partial class MainWindow : Window
     {
-        private Graph graph;
+        AutomatonViewModel ViewModel { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            ViewModel = new AutomatonViewModel();
+            this.DataContext = ViewModel;
+            //a.ItemsSource = ViewModel.States;
+
+            /*
             GraphViewer graphViewer = new GraphViewer();
             graphViewer.BindToPanel(graphViewPanel);
 
+            
             FiniteAutomaton automaton = TestAutomaton();
             graph = GraphFromAutomaton(automaton);
 
@@ -31,14 +39,16 @@ namespace Automata
             graphViewer.Graph = graph;
 
             //InitialStateComboBox.ItemsSource = graph.Nodes;
+            */
         }
 
+        /*
         private Graph GraphFromAutomaton(FiniteAutomaton automaton)
         {
             Graph graph = new Graph();
 
-            Dictionary<IState, Node> nodesByState = new Dictionary<IState, Node>();
-            foreach (IState state in automaton.States)
+            Dictionary<State, Node> nodesByState = new Dictionary<State, Node>();
+            foreach (State state in automaton.States)
             {
                 Node node = new Node(nodesByState.Count.ToString());
                 if (state.IsAccepting)
@@ -52,7 +62,7 @@ namespace Automata
             
             foreach (var transition in automaton.Transitions)
             {
-                IState currentState = transition.CurrentState,
+                State currentState = transition.CurrentState,
                           nextState = transition.NextState;
                 Node currentNode = nodesByState[currentState],
                         nextNode = nodesByState[nextState];
@@ -63,7 +73,7 @@ namespace Automata
                 graph.AddPrecalculatedEdge(edge);
             }
 
-            IState initialState = automaton.InitialState;
+            State initialState = automaton.InitialState;
             Node startingNode = nodesByState[initialState],
                 dummyNode = new Node(" ");
             dummyNode.IsVisible = false;
@@ -93,16 +103,73 @@ namespace Automata
             FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
 
             return NFA;
-        }
+        }*/
 
         private void addStateButton_Click(object sender, RoutedEventArgs e)
         {
-            //graph.AddNode(stateLabelTextBox.Text);
+            bool isAccepting = isAcceptingTextBox.IsChecked ?? false;
+            string stateID;
+
+            if (stateIDTextBox.Text == "")
+                stateID = stateList.Items.Count.ToString();
+            else
+                stateID = stateIDTextBox.Text;
+
+            ViewModel.AddState(stateID, isAccepting);
         }
 
         private void addTransitionButton_Click(object sender, RoutedEventArgs e)
         {
+            string currentStateID = currentStateComboBox.Text,
+                           symbol = symbolComboBox.Text,
+                      nextStateID = nextStateComboBox.Text;
+
+            if (!stateList.HasItems)
+            {
+                MessageBox.Show("Please add some states first.", "Error");
+                return;
+            }
+
+            if (currentStateID == "" || symbol == "" || nextStateID == "")
+            {
+                MessageBox.Show("Please select a starting state, a symbol and an ending state.");
+                return;
+            }
             
+            ViewModel.AddTransition(currentStateID, symbol, nextStateID);
+        }
+
+        private void resetStateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ResetState();
+        }
+
+        private void resetTransitionButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ResetTransition();
+        }
+
+        private void newAlphabetButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<char> symbols = new List<char>();
+            foreach (char symbol in alphabetTextBox.Text)
+                if (char.IsLetterOrDigit(symbol))
+                    symbols.Add(symbol);
+
+            if (symbols.Count == 0)
+            {
+                MessageBox.Show("Please enter at least a valid character.", "Error");
+                return;
+            }
+
+            try
+            {
+                ViewModel.ResetAlphabet(symbols.ToArray());
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("Please enter at least a valid character.", "Error");
+            }
         }
     }
 }
