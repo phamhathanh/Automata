@@ -11,28 +11,26 @@ namespace Automata
 {
     public partial class MainWindow : Window
     {
-        private GraphViewer graphViewer;
-        public ObservableCollection<Node> Nodes { get; set; }
+        private Graph graph;
 
         public MainWindow()
         {
             InitializeComponent();
-            Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            graphViewer = new GraphViewer();
+            GraphViewer graphViewer = new GraphViewer();
             graphViewer.BindToPanel(graphViewPanel);
 
             FiniteAutomaton automaton = TestAutomaton();
-            Graph graph = GraphFromAutomaton(automaton);
+            graph = GraphFromAutomaton(automaton);
 
             graph.Attr.LayerDirection = LayerDirection.LR;
 
             graphViewer.Graph = graph;
 
-            InitialStateComboBox.ItemsSource = graph.Nodes;
+            //InitialStateComboBox.ItemsSource = graph.Nodes;
         }
 
         private Graph GraphFromAutomaton(IAutomaton automaton)
@@ -62,36 +60,49 @@ namespace Automata
 
                 Edge edge = new Edge(currentNode, nextNode, ConnectionToGraph.Connected);
                 edge.LabelText = symbol.ToString();
-
-                if (currentNode != nextNode)
-                    currentNode.AddOutEdge(edge);
-                else
-                    currentNode.AddSelfEdge(edge);
+                graph.AddPrecalculatedEdge(edge);
             }
+
+            IState initialState = automaton.InitialState;
+            Node startingNode = nodesByState[initialState],
+                dummyNode = new Node(" ");
+            dummyNode.IsVisible = false;
+            graph.AddNode(dummyNode);
+            Edge initialEdge = new Edge(dummyNode, startingNode, ConnectionToGraph.Connected);
 
             return graph;
         }
 
         private FiniteAutomaton TestAutomaton()
         {
-            TransitionInfo[] infos = new TransitionInfo[] { new TransitionInfo(0, 'a', 1),
-                                                            new TransitionInfo(0, 'b', 1),
-                                                            new TransitionInfo(0, 'ε', 3),
-                                                            new TransitionInfo(0, 'ε', 4),
-                                                            new TransitionInfo(0, 'ε', 1),
-                                                            new TransitionInfo(1, 'a', 0),
-                                                            new TransitionInfo(1, 'ε', 2),
-                                                            new TransitionInfo(2, 'a', 1),
-                                                            new TransitionInfo(2, 'a', 2),
-                                                            new TransitionInfo(3, 'a', 4),
-                                                            new TransitionInfo(3, 'b', 3),
-                                                            new TransitionInfo(3, 'ε', 4),
-                                                            new TransitionInfo(4, 'b', 3) };
+            Transition[] infos = new Transition[] { new Transition(0, 'a', 1),
+                                                            new Transition(0, 'b', 1),
+                                                            new Transition(0, 'ε', 3),
+                                                            new Transition(0, 'ε', 4),
+                                                            new Transition(0, 'ε', 1),
+                                                            new Transition(1, 'a', 0),
+                                                            new Transition(1, 'ε', 2),
+                                                            new Transition(2, 'a', 1),
+                                                            new Transition(2, 'a', 2),
+                                                            new Transition(3, 'a', 4),
+                                                            new Transition(3, 'b', 3),
+                                                            new Transition(3, 'ε', 4),
+                                                            new Transition(4, 'b', 3) };
 
             Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
             FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
 
             return NFA;
+        }
+
+        private void addStateButton_Click(object sender, RoutedEventArgs e)
+        {
+            //graph.AddNode(stateLabelTextBox.Text);
+        }
+
+        private void addTransitionButton_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

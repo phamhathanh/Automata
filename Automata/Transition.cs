@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Automata
+﻿namespace Automata
 {
-    class Transition : ITransition
+    class Transition
     {
-        private readonly State currentState, nextState;
+        private readonly int currentStateIndex, nextStateIndex;
         private readonly Symbol symbol;
 
-        public IState CurrentState
+        public int CurrentStateIndex
         {
             get
             {
-                return currentState;
+                return currentStateIndex;
             }
         }
 
-        public IState NextState
+        public int NextStateIndex
         {
             get
             {
-                return nextState;
+                return nextStateIndex;
             }
         }
 
-        public object Symbol
+        public Symbol Symbol
         {
             get
             {
@@ -35,11 +29,11 @@ namespace Automata
             }
         }
 
-        public Transition(State currentState, Symbol symbol, State nextState)
+        public Transition(int currentStateIndex, Symbol symbol, int nextStateIndex)
         {
-            this.currentState = currentState;
+            this.currentStateIndex = currentStateIndex;
             this.symbol = symbol;
-            this.nextState = nextState;
+            this.nextStateIndex = nextStateIndex;
         }
     }
 }

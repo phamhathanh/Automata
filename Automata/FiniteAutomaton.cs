@@ -8,27 +8,8 @@ namespace Automata
         private readonly Alphabet alphabet;
         private readonly State[] states;
         private readonly State initialState;
-        private readonly List<Transition> transitions;
 
-        public IEnumerable<IState> States
-        {
-            get
-            {
-                foreach (State state in states)
-                    yield return state;
-            }
-        }
-
-        public IEnumerable<ITransition> Transitions
-        {
-            get
-            {
-                foreach (Transition transition in transitions)
-                    yield return transition;
-            }
-        }
-
-        public FiniteAutomaton(int statesCount, Alphabet alphabet, TransitionInfo[] transitionInfos,
+        public FiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitionInfos,
                                                     int initialStateIndex, int[] acceptingStateIndexes)
         {
             this.alphabet = alphabet;
@@ -40,7 +21,6 @@ namespace Automata
             this.initialState = GetState(initialStateIndex);
 
             int transitionsCount = transitionInfos.Length;
-            this.transitions = new List<Transition>(transitionsCount);
             foreach (var info in transitionInfos)
                 AddTransition(info);
             
@@ -54,7 +34,7 @@ namespace Automata
                 state.WrapUp();
         }
 
-        private void AddTransition(TransitionInfo info)
+        private void AddTransition(Transition info)
         {
             if (!alphabet.Contains(info.Symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
@@ -64,7 +44,6 @@ namespace Automata
             Symbol symbol = info.Symbol;
 
             currentState.AddTransition(symbol, nextState);
-            transitions.Add(new Transition(currentState, symbol, nextState));
         }
 
         private State GetState(int stateIndex)

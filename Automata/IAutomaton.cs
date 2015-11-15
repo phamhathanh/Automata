@@ -1,19 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Automata
+﻿namespace Automata
 {
     interface IAutomaton
     {
-        IEnumerable<IState> States
-        {
-            get;
-        }
-
-        IEnumerable<ITransition> Transitions
-        {
-            get;
-        }
-
         bool AcceptString(string input);
     }
 }
