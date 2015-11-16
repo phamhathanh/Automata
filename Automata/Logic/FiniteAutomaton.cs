@@ -9,7 +9,7 @@ namespace Automata
         private readonly State[] states;
         private readonly State initialState;
 
-        public FiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitionInfos,
+        public FiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitions,
                                                     int initialStateIndex, int[] acceptingStateIndexes)
         {
             this.alphabet = alphabet;
@@ -20,8 +20,8 @@ namespace Automata
 
             this.initialState = GetState(initialStateIndex);
 
-            int transitionsCount = transitionInfos.Length;
-            foreach (var info in transitionInfos)
+            int transitionsCount = transitions.Length;
+            foreach (var info in transitions)
                 AddTransition(info);
             
             for (int i = 0; i < acceptingStateIndexes.Length; i++)

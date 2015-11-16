@@ -21,7 +21,6 @@ namespace Automata
                 }
             }
         }
-
         public string Symbol
         {
             get
@@ -37,7 +36,6 @@ namespace Automata
                 }
             }
         }
-
         public string NextStateID
         {
             get
@@ -61,6 +59,30 @@ namespace Automata
             this.currentStateID = currentStateID;
             this.symbol = symbol;
             this.nextStateID = nextStateID;
+        }
+
+        public static bool operator==(TransitionViewModel transition1, TransitionViewModel transition2)
+        {
+            return transition1.currentStateID == transition2.currentStateID
+                && transition1.symbol == transition2.symbol
+                && transition1.nextStateID == transition2.nextStateID;
+        }
+
+        public static bool operator !=(TransitionViewModel transition1, TransitionViewModel transition2)
+        {
+            return !(transition1 == transition2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TransitionViewModel && this == (TransitionViewModel)obj;
+        }
+
+        public override int GetHashCode()
+        {
+            return 7 * currentStateID.GetHashCode()
+                + 17 * symbol.GetHashCode()
+                + 37 * nextStateID.GetHashCode();
         }
     }
 }

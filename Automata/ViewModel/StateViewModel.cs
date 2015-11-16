@@ -17,9 +17,7 @@ namespace Automata
             {
                 id = value;
                 if (PropertyChanged != null)
-                {
                     PropertyChanged(this, new PropertyChangedEventArgs("ID"));
-                }
             }
         }
 
@@ -33,9 +31,7 @@ namespace Automata
             {
                 isAccepting = value;
                 if (PropertyChanged != null)
-                {
                     PropertyChanged(this, new PropertyChangedEventArgs("IsAccepting"));
-                }
             }
         }
         

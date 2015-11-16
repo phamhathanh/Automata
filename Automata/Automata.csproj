@@ -67,7 +67,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModel\AlphabetViewModel.cs" />
+    <Compile Include="ViewModel\SymbolViewModel.cs" />
     <Compile Include="ViewModel\AutomatonViewModel.cs" />
     <Compile Include="Logic\DFAConverter.cs" />
     <Compile Include="Logic\State.cs" />

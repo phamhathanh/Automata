@@ -7,115 +7,42 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Automata
 {
     public partial class MainWindow : Window
     {
+        private GraphViewer graphViewer;
+
         AutomatonViewModel ViewModel { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ViewModel = new AutomatonViewModel();
             this.DataContext = ViewModel;
-            //a.ItemsSource = ViewModel.States;
 
-            /*
-            GraphViewer graphViewer = new GraphViewer();
+            graphViewer = new GraphViewer();
             graphViewer.BindToPanel(graphViewPanel);
-
-            
-            FiniteAutomaton automaton = TestAutomaton();
-            graph = GraphFromAutomaton(automaton);
-
-            graph.Attr.LayerDirection = LayerDirection.LR;
-
-            graphViewer.Graph = graph;
-
-            //InitialStateComboBox.ItemsSource = graph.Nodes;
-            */
         }
 
-        /*
-        private Graph GraphFromAutomaton(FiniteAutomaton automaton)
+        private void UpdateGraph()
         {
-            Graph graph = new Graph();
-
-            Dictionary<State, Node> nodesByState = new Dictionary<State, Node>();
-            foreach (State state in automaton.States)
-            {
-                Node node = new Node(nodesByState.Count.ToString());
-                if (state.IsAccepting)
-                    node.Attr.Shape = Shape.DoubleCircle;
-                else
-                    node.Attr.Shape = Shape.Circle;
-
-                nodesByState.Add(state, node);
-                graph.AddNode(node);
-            }
-            
-            foreach (var transition in automaton.Transitions)
-            {
-                State currentState = transition.CurrentState,
-                          nextState = transition.NextState;
-                Node currentNode = nodesByState[currentState],
-                        nextNode = nodesByState[nextState];
-                object symbol = transition.Symbol;
-
-                Edge edge = new Edge(currentNode, nextNode, ConnectionToGraph.Connected);
-                edge.LabelText = symbol.ToString();
-                graph.AddPrecalculatedEdge(edge);
-            }
-
-            State initialState = automaton.InitialState;
-            Node startingNode = nodesByState[initialState],
-                dummyNode = new Node(" ");
-            dummyNode.IsVisible = false;
-            graph.AddNode(dummyNode);
-            Edge initialEdge = new Edge(dummyNode, startingNode, ConnectionToGraph.Connected);
-
-            return graph;
+            graphViewer.Graph = ViewModel.Graph;
         }
-
-        private FiniteAutomaton TestAutomaton()
-        {
-            Transition[] infos = new Transition[] { new Transition(0, 'a', 1),
-                                                            new Transition(0, 'b', 1),
-                                                            new Transition(0, 'ε', 3),
-                                                            new Transition(0, 'ε', 4),
-                                                            new Transition(0, 'ε', 1),
-                                                            new Transition(1, 'a', 0),
-                                                            new Transition(1, 'ε', 2),
-                                                            new Transition(2, 'a', 1),
-                                                            new Transition(2, 'a', 2),
-                                                            new Transition(3, 'a', 4),
-                                                            new Transition(3, 'b', 3),
-                                                            new Transition(3, 'ε', 4),
-                                                            new Transition(4, 'b', 3) };
-
-            Alphabet alphabet = new Alphabet(new Symbol[] { 'a', 'b' });
-            FiniteAutomaton NFA = new FiniteAutomaton(5, alphabet, infos, 0, new int[] { 1 });
-
-            return NFA;
-        }*/
 
         private void addStateButton_Click(object sender, RoutedEventArgs e)
         {
             bool isAccepting = isAcceptingTextBox.IsChecked ?? false;
-            string stateID;
-
-            if (stateIDTextBox.Text == "")
-                stateID = stateList.Items.Count.ToString();
-            else
-                stateID = stateIDTextBox.Text;
-
+            string stateID = stateID = stateList.Items.Count.ToString();
+            
             ViewModel.AddState(stateID, isAccepting);
+            UpdateGraph();
         }
 
         private void addTransitionButton_Click(object sender, RoutedEventArgs e)
@@ -135,22 +62,40 @@ namespace Automata
                 MessageBox.Show("Please select a starting state, a symbol and an ending state.");
                 return;
             }
-            
-            ViewModel.AddTransition(currentStateID, symbol, nextStateID);
+
+            try
+            {
+                ViewModel.AddTransition(currentStateID, symbol[0], nextStateID);
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("Transition is already defined.", "Error");
+            }
+
+            UpdateGraph();
         }
 
         private void resetStateButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.ResetState();
+            ViewModel.ResetStates();
+            UpdateGraph();
         }
 
         private void resetTransitionButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.ResetTransition();
+            ViewModel.ResetTransitions();
+            UpdateGraph();
         }
 
         private void newAlphabetButton_Click(object sender, RoutedEventArgs e)
         {
+            if (alphabetTextBox.Text == "")
+            {
+                ViewModel.ResetAll();
+                UpdateGraph();
+                return;
+            }
+
             List<char> symbols = new List<char>();
             foreach (char symbol in alphabetTextBox.Text)
                 if (char.IsLetterOrDigit(symbol))
@@ -170,6 +115,47 @@ namespace Automata
             {
                 MessageBox.Show("Please enter at least a valid character.", "Error");
             }
+
+            UpdateGraph();
+        }
+
+        private void stateList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateGraph();
+        }
+
+        private void checkStringButton_Click(object sender, RoutedEventArgs e)
+        {
+            string input = inputTextBox.Text;
+            if (input == "")
+            {
+                MessageBox.Show("Please enter an input string.", "Error");
+                return;
+            }
+
+            try
+            {
+                bool isAccepted = ViewModel.AcceptString(input);
+
+                if (isAccepted)
+                    inputTextBox.Background = Brushes.LimeGreen;
+                else
+                    inputTextBox.Background = Brushes.Red;
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("Please enter a valid alphabet, some states and some transitions.", "Error");
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.ToString());
+                // TODO: custom exception
+            }
+        }
+
+        private void inputTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            inputTextBox.Background = SystemColors.WindowBrush;
         }
     }
 }
