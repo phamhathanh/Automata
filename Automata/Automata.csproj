@@ -70,6 +70,7 @@
     <Compile Include="ViewModel\SymbolViewModel.cs" />
     <Compile Include="ViewModel\AutomatonViewModel.cs" />
     <Compile Include="Logic\DFAConverter.cs" />
+	<Compile Include="Logic\CYK.cs" />
     <Compile Include="Logic\State.cs" />
     <Compile Include="ViewModel\StateViewModel.cs" />
     <Compile Include="Logic\Symbol.cs" />
