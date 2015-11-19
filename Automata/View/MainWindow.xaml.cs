@@ -20,6 +20,10 @@ namespace Automata
         public MainWindow()
         {
             InitializeComponent();
+
+#if DEBUG
+            Automata.Debug.RunTest();
+#endif
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

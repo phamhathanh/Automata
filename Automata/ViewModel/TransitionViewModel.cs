@@ -4,7 +4,8 @@ namespace Automata
 {
     class TransitionViewModel : INotifyPropertyChanged
     {
-        private string currentStateID, symbol, nextStateID;
+        private string currentStateID, nextStateID;
+        private char symbol;
 
         public string CurrentStateID
         {
@@ -21,7 +22,7 @@ namespace Automata
                 }
             }
         }
-        public string Symbol
+        public char Symbol
         {
             get
             {
@@ -54,7 +55,7 @@ namespace Automata
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public TransitionViewModel(string currentStateID, string symbol, string nextStateID)
+        public TransitionViewModel(string currentStateID, char symbol, string nextStateID)
         {
             this.currentStateID = currentStateID;
             this.symbol = symbol;

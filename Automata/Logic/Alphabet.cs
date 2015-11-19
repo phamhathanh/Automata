@@ -9,7 +9,7 @@ namespace Automata
     class Alphabet
     {
         private readonly Symbol[] symbols;
-        public static readonly Symbol Epsilon = new Symbol("ε");
+        public static readonly Symbol Epsilon = new Symbol('ε');
         public int Length
         {
             get

@@ -129,14 +129,14 @@ namespace Automata
             if (!IsInAlphabet(symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
 
-            string symbolString = symbol.ToString();
+            char symbolChar = symbol;
 
-            TransitionViewModel transition = new TransitionViewModel(currentStateID, symbolString, nextStateID);
+            TransitionViewModel transition = new TransitionViewModel(currentStateID, symbolChar, nextStateID);
             if (transitions.Contains(transition))
                 throw new ArgumentException("Transition is already defined.");
 
             transitions.Add(transition);
-            graph.AddEdge(currentStateID, symbolString, nextStateID);
+            graph.AddEdge(currentStateID, symbolChar.ToString(), nextStateID);
         }
 
         private bool IsInAlphabet(char symbol)
