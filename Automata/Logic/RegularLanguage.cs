@@ -9,25 +9,28 @@ namespace Automata
 {
     class RegularLanguage
     {
+        public static readonly RegularLanguage Empty = new RegularLanguage("");
+
+        private readonly string pattern;
         private readonly Regex regex;
 
         public string Expression
         {
             get
             {
-                return regex.ToString();
-                // TODO: is shit
+                return pattern;
             }
         }
 
         public RegularLanguage(string expression)
         {
-            string pattern = "";
-            pattern += "^";
-
-            pattern += "$";
-
+            this.pattern = "^" + expression + "$";
             this.regex = new Regex(pattern);
+        }
+
+        public bool Contains(string input)
+        {
+            return regex.IsMatch(input);
         }
     }
 }
