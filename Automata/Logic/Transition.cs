@@ -35,5 +35,27 @@
             this.symbol = symbol;
             this.nextStateIndex = nextStateIndex;
         }
+
+        public static bool operator ==(Transition transition1, Transition transition2)
+        {
+            return transition1 == transition2;
+        }
+
+        public static bool operator !=(Transition transition1, Transition transition2)
+        {
+            return !(transition1 == transition2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Transition && this == (Transition)obj;
+        }
+
+        public override int GetHashCode()
+        {
+            return 7 * currentStateIndex.GetHashCode()
+                + 17 * symbol.GetHashCode()
+                + 37 * nextStateIndex.GetHashCode();
+        }
     }
 }

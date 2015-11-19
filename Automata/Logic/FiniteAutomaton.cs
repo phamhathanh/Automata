@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Automata
 {
@@ -20,7 +22,9 @@ namespace Automata
 
             this.initialState = GetState(initialStateIndex);
 
-            int transitionsCount = transitions.Length;
+            bool hasDuplicates = transitions.Distinct().Count() < transitions.Length;
+            if (hasDuplicates)
+                throw new ArgumentException("Transitions cannot contain duplicates.");
             foreach (var info in transitions)
                 AddTransition(info);
             
@@ -36,7 +40,7 @@ namespace Automata
 
         private void AddTransition(Transition info)
         {
-            if (!alphabet.Contains(info.Symbol))
+            if (!IsValid(info.Symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
 
             State currentState = GetState(info.CurrentStateIndex),
@@ -44,6 +48,14 @@ namespace Automata
             Symbol symbol = info.Symbol;
 
             currentState.AddTransition(symbol, nextState);
+        }
+        
+        private bool IsValid(Symbol symbol)
+        {
+            if (symbol.Equals(Alphabet.Epsilon))
+                return true;
+
+            return alphabet.Contains(symbol);
         }
 
         private State GetState(int stateIndex)
@@ -66,7 +78,7 @@ namespace Automata
 
         private IEnumerable<State> NextStates(IEnumerable<State> states, Symbol symbol)
         {
-            if (!alphabet.Contains(symbol))
+            if (!IsValid(symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
 
             foreach (State state in states)

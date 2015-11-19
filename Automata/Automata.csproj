@@ -67,6 +67,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Logic\Grammar.cs" />
+    <Compile Include="Logic\Production.cs" />
     <Compile Include="Logic\Test.cs" />
     <Compile Include="Logic\RegularLanguage.cs" />
     <Compile Include="ViewModel\SymbolViewModel.cs" />

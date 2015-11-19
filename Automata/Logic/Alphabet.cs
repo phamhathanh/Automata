@@ -8,8 +8,10 @@ namespace Automata
 {
     class Alphabet
     {
-        private readonly Symbol[] symbols;
         public static readonly Symbol Epsilon = new Symbol('ε');
+
+        private readonly Symbol[] symbols;
+        
         public int Length
         {
             get
@@ -23,7 +25,11 @@ namespace Automata
             if (symbols.Contains(Epsilon))
                 throw new ArgumentException("Alphabet cannot contain the epsilon symbol.");
 
-            this.symbols = symbols.Distinct().ToArray();
+            bool hasDuplicates = symbols.Distinct().Count() < symbols.Length;
+            if (hasDuplicates)
+                throw new ArgumentException("Alphabet cannot contain duplicates.");
+
+            this.symbols = (Symbol[])symbols.Clone();
         }
 
         public Symbol this[int index]
@@ -39,10 +45,7 @@ namespace Automata
             foreach (Symbol s in symbols)
                 if (symbol.Equals(s))
                     return true;
-
-            if (symbol.Equals(Epsilon))
-                return true;
-
+            
             return false;
         }
     }

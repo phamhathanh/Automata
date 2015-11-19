@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Automata
@@ -39,6 +40,8 @@ namespace Automata
                 transition = new List<State>();
                 transitions.Add(symbol, transition);
             }
+            else if (transition.Contains(next))
+                throw new InvalidOperationException("Transition is already defined.");
 
             transition.Add(next);
         }
