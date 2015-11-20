@@ -122,7 +122,7 @@ namespace Automata
             return false;
         }
 
-        public void AddTransition(string currentStateID, char symbol, string nextStateID)
+        public void AddTransition(string currentStateID, string symbol, string nextStateID)
         {
             if (States.Count == 0)
                 throw new InvalidOperationException("State collection is empty.");
@@ -130,17 +130,17 @@ namespace Automata
             if (!IsInAlphabet(symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
 
-            char symbolChar = symbol;
+            string symbolString = symbol;
 
-            TransitionViewModel transition = new TransitionViewModel(currentStateID, symbolChar, nextStateID);
+            TransitionViewModel transition = new TransitionViewModel(currentStateID, symbolString, nextStateID);
             if (transitions.Contains(transition))
                 throw new ArgumentException("Transition is already defined.");
 
             transitions.Add(transition);
-            graph.AddEdge(currentStateID, symbolChar.ToString(), nextStateID);
+            graph.AddEdge(currentStateID, symbolString, nextStateID);
         }
 
-        private bool IsInAlphabet(char symbol)
+        private bool IsInAlphabet(Symbol symbol)
         {
             foreach (var presentSymbol in Symbols)
                 if (presentSymbol.Symbol == symbol)

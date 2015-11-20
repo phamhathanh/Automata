@@ -4,21 +4,31 @@ namespace Automata
 {
     struct Symbol : IEquatable<Symbol>
     {
-        private readonly char value;
+        private readonly string representation;
 
         public Symbol(char c)
         {
-            this.value = c;
+            this.representation = c.ToString();
+        }
+
+        public Symbol(string s)
+        {
+            this.representation = s;
         }
 
         public override string ToString()
         {
-            return value.ToString();
+            return representation;
         }
 
         public static implicit operator Symbol(char c)
         {
             return new Symbol(c);
+        }
+
+        public static implicit operator Symbol(string s)
+        {
+            return new Symbol(s);
         }
 
         public bool Equals(Symbol other)
@@ -31,19 +41,19 @@ namespace Automata
             return obj is Symbol && this == (Symbol)obj;
         }
 
-        public static bool operator==(Symbol symbol1, Symbol symbol2)
+        public static bool operator ==(Symbol symbol1, Symbol symbol2)
         {
-            return symbol1.value == symbol2.value;
+            return symbol1.representation == symbol2.representation;
         }
 
         public static bool operator !=(Symbol symbol1, Symbol symbol2)
         {
-            return symbol1.value != symbol2.value;
+            return symbol1.representation != symbol2.representation;
         }
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            return representation.GetHashCode();
         }
     }
 }

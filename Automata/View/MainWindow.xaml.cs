@@ -69,7 +69,7 @@ namespace Automata
 
             try
             {
-                ViewModel.AddTransition(currentStateID, symbol[0], nextStateID);
+                ViewModel.AddTransition(currentStateID, symbol, nextStateID);
             }
             catch (ArgumentException)
             {
