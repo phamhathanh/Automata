@@ -24,7 +24,11 @@ namespace Automata
 
         public RegularLanguage(string expression)
         {
+            Regex validExpression = new Regex(@"[w\(\)\|\+\*]");
+            bool expressionIsValid = validExpression.IsMatch(expression);
+
             this.pattern = "^" + expression + "$";
+            // ensure regex do not match in substring
             this.regex = new Regex(pattern);
         }
 

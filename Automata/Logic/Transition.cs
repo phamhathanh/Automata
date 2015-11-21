@@ -38,7 +38,9 @@
 
         public static bool operator ==(Transition transition1, Transition transition2)
         {
-            return transition1 == transition2;
+            return transition1.currentStateIndex == transition2.currentStateIndex
+                && transition1.nextStateIndex == transition2.nextStateIndex
+                && transition1.symbol == transition2.symbol;
         }
 
         public static bool operator !=(Transition transition1, Transition transition2)

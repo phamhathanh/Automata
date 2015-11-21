@@ -23,6 +23,7 @@ namespace Automata
             Debug.Assert(!language.Contains("001000"));
             Debug.Assert(language.Contains("010101"));
             Debug.Assert(language.Contains("01"));
+            Debug.Assert(language.Contains("01\n"));
         }
     }
 }

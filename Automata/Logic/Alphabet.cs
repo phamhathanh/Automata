@@ -48,5 +48,14 @@ namespace Automata
             
             return false;
         }
+
+        public bool Contains(IEnumerable<Symbol> word)
+        {
+            foreach (Symbol symbol in word)
+                if (!this.Contains(symbol))
+                    return false;
+
+            return true;
+        }
     }
 }

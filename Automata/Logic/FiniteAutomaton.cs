@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Automata
@@ -60,6 +61,8 @@ namespace Automata
 
         private State GetState(int stateIndex)
         {
+            Debug.Assert(states != null);
+
             if (stateIndex < 0 || stateIndex >= states.Length)
                 throw new ArgumentOutOfRangeException("State index is out of range.");
 

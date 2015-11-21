@@ -8,9 +8,26 @@ namespace Automata
 {
     class Production
     {
-        private readonly string original, directDerivation;
+        private readonly Symbol original;
+        private readonly Sentence directDerivation;
 
-        public Production(string original, string directDerivation)
+        public Symbol Original
+        {
+            get
+            {
+                return original;
+            }
+        }
+
+        public Sentence DirectDerivation
+        {
+            get
+            {
+                return directDerivation;
+            }
+        }
+
+        public Production(Symbol original, Sentence directDerivation)
         {
             this.original = original;
             this.directDerivation = directDerivation;
@@ -18,7 +35,8 @@ namespace Automata
 
         public static bool operator ==(Production production1, Production production2)
         {
-            return production1 == production2;
+            return production1.original == production2.original
+                && production1.directDerivation == production2.directDerivation;
         }
 
         public static bool operator !=(Production production1, Production production2)
