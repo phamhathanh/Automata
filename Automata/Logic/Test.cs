@@ -16,10 +16,12 @@ namespace Automata
 
         private static void TestRegex()
         {
-            string pattern = "(01|1)*(|0|000*)";
+            string pattern = "ab|aba|abba|babaa";
             // binary strings with no substring 001
 
             RegularLanguage language = new RegularLanguage(pattern);
+            Automata.Logic.Patterson.Patterson patterson = new Logic.Patterson.Patterson(language);
+            patterson.Check_Code();
             Debug.Assert(!language.Contains("001000"));
             Debug.Assert(language.Contains("010101"));
             Debug.Assert(language.Contains("01"));
