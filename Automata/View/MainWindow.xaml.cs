@@ -5,6 +5,7 @@ using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -67,9 +68,11 @@ namespace Automata
                 return;
             }
 
+            Debug.Assert(symbol.Length == 1);
+
             try
             {
-                ViewModel.AddTransition(currentStateID, symbol, nextStateID);
+                ViewModel.AddTransition(currentStateID, symbol[0], nextStateID);
             }
             catch (ArgumentException)
             {

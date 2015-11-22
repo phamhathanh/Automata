@@ -11,13 +11,30 @@ namespace Automata
         public static readonly Symbol Epsilon = new Symbol('ε');
 
         private readonly Symbol[] symbols;
-        
+
+        public Symbol this[int index]
+        {
+            get
+            {
+                return symbols[index];
+            }
+        }
+
         public int Length
         {
             get
             {
                 return symbols.Length;
             }
+        }
+
+        public bool Contains(Symbol symbol)
+        {
+            foreach (Symbol s in symbols)
+                if (symbol.Equals(s))
+                    return true;
+            
+            return false;
         }
 
         public Alphabet(Symbol[] symbols)
@@ -30,23 +47,6 @@ namespace Automata
                 throw new ArgumentException("Alphabet cannot contain duplicates.");
 
             this.symbols = (Symbol[])symbols.Clone();
-        }
-
-        public Symbol this[int index]
-        {
-            get
-            {
-                return symbols[index];
-            }
-        }
-
-        public bool Contains(Symbol symbol)
-        {
-            foreach (Symbol s in symbols)
-                if (symbol.Equals(s))
-                    return true;
-            
-            return false;
         }
 
         public bool Contains(IEnumerable<Symbol> word)
