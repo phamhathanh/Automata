@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -6,12 +7,16 @@ namespace Automata
 {
     class ContextFreeGrammar
     {
-        private readonly Alphabet nonterminals, terminals, alphabet;
+        /*
+        private readonly IEnumerable<NonterminalSymbol> nonterminals;
+        private readonly IEnumerable<TerminalSymbol> terminals;
+        private readonly IEnumerable<GrammarSymbol> alphabet;
+        */
         private readonly Symbol starting;
         private readonly Production[] rules;
 
-        public ContextFreeGrammar(char[] nonterminals, char[] terminals,
-                                                            Production[] rules, char starting)
+        public ContextFreeGrammar(string[] nonterminals, string[] terminals,
+                                                            Production[] rules, string starting)
         {
             if (HasDuplicates(nonterminals))
                 throw new ArgumentException("Nonterminal symbols cannot contain duplicates.");
@@ -30,27 +35,39 @@ namespace Automata
                 if (!IsValid(rule))
                     throw new ArgumentException("Production rule is invalid.");
 
-            this.nonterminals = new Alphabet(nonterminals);
-            this.terminals = new Alphabet(terminals);
-            Symbol[] alphabet = nonterminals.Concat(terminals).ToArray();
-            this.alphabet = new Alphabet(alphabet);
+            /*
+            int n = nonterminals.Length;
+            this.nonterminals = new NonterminalSymbol[n];
+            for (int i = 0; i < n; i++)
+                this.nonterminals[i] = new NonterminalSymbol(nonterminals[i]);
+
+            n = terminals.Length;
+            this.terminals = new TerminalSymbol[n];
+            for (int i = 0; i < n; i++)
+                this.terminals[i] = new TerminalSymbol(terminals[i]);
+            
+            GrammarSymbol[] alphabet = ((GrammarSymbol)this.nonterminals).Concat(this.terminals).ToArray();
+            */
 
             this.starting = starting;
         }
 
-        private bool HasDuplicates(char[] symbols)
+        private bool HasDuplicates(string[] symbols)
         {
             return symbols.Distinct().Count() < symbols.Length;
         }
 
         private bool IsValid(Production production)
         {
+            throw new NotImplementedException();
+            /*
             Debug.Assert(nonterminals != null);
             Debug.Assert(terminals != null);
             Debug.Assert(alphabet != null);
 
             return nonterminals.Contains(production.Original)
                 && alphabet.Contains(production.DirectDerivation);
+                */
         }
 
         public bool HasSentence(Sentence sentence)
@@ -60,6 +77,7 @@ namespace Automata
 
         public ContextFreeGrammar GetChomskyNormalForm()
         {
+            throw new NotImplementedException();
             EliminateStartingSymbolFromRHS();
             EliminateRulesWithNonsolitaryTerminals();
             EliminateRHSsWithMoreThanTwoNonterminals();

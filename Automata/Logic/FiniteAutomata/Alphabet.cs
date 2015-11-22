@@ -28,15 +28,6 @@ namespace Automata
             }
         }
 
-        public bool Contains(Symbol symbol)
-        {
-            foreach (Symbol s in symbols)
-                if (symbol.Equals(s))
-                    return true;
-            
-            return false;
-        }
-
         public Alphabet(Symbol[] symbols)
         {
             if (symbols.Contains(Epsilon))
@@ -49,13 +40,13 @@ namespace Automata
             this.symbols = (Symbol[])symbols.Clone();
         }
 
-        public bool Contains(IEnumerable<Symbol> word)
+        public bool Contains(Symbol symbol)
         {
-            foreach (Symbol symbol in word)
-                if (!this.Contains(symbol))
-                    return false;
-
-            return true;
+            foreach (Symbol s in symbols)
+                if (symbol.Equals(s))
+                    return true;
+            
+            return false;
         }
     }
 }

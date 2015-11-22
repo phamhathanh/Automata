@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    abstract class GrammarSymbol
+    class GrammarSymbol
     {
+        private readonly string representation;
+
+        protected GrammarSymbol(string representation)
+        {
+            this.representation = representation;
+        }
     }
 }

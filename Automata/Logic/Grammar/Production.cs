@@ -8,10 +8,10 @@ namespace Automata
 {
     class Production
     {
-        private readonly Symbol original;
-        private readonly Sentence directDerivation;
+        private readonly string original;
+        private readonly string[] directDerivation;
 
-        public Symbol Original
+        public string Original
         {
             get
             {
@@ -19,18 +19,19 @@ namespace Automata
             }
         }
 
-        public Sentence DirectDerivation
+        public IEnumerable<string> DirectDerivation
         {
             get
             {
-                return directDerivation;
+                foreach (string symbol in directDerivation)
+                    yield return symbol;
             }
         }
 
-        public Production(Symbol original, Sentence directDerivation)
+        public Production(string original, string[] directDerivation)
         {
             this.original = original;
-            this.directDerivation = directDerivation;
+            this.directDerivation = (string[])directDerivation.Clone();
         }
 
         public static bool operator ==(Production production1, Production production2)
