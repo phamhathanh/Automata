@@ -8,15 +8,10 @@ namespace Automata
 {
     class GrammarAlphabet
     {
-        public static readonly GrammarSymbol Epsilon = new GrammarSymbol("ε");
-
         private readonly GrammarSymbol[] symbols;
 
         public GrammarAlphabet(GrammarSymbol[] symbols)
         {
-            if (symbols.Contains(Epsilon))
-                throw new ArgumentException("Alphabet cannot contain the epsilon symbol.");
-
             bool hasDuplicates = symbols.Distinct().Count() < symbols.Length;
             if (hasDuplicates)
                 throw new ArgumentException("Alphabet cannot contain duplicates.");

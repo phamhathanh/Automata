@@ -10,12 +10,25 @@ namespace Automata
     {
         private readonly string representation;
 
+        private Sentence[] directDerivatives;
+
         public bool IsTerminal { get; set; }
+
+        /* TODO: immutability, like the states
+         *       no derivatives if terminal (may be only assert)
+         */
 
         public GrammarSymbol(string representation)
         {
             this.representation = representation;
         }
+
+        public IEnumerable<Sentence> GetDirectDerivatives()
+        {
+            throw new NotImplementedException();
+        }
+
+
 
         public bool Matches(string s)
         {

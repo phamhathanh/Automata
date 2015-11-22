@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class Production : IEquatable<Production>
+    class Production
     {
         private readonly string original;
         private readonly string[] directDerivation;
@@ -63,11 +63,6 @@ namespace Automata
         {
             return 7 * original.GetHashCode()
                 + 37 * directDerivation.GetHashCode();
-        }
-
-        public bool Equals(Production other)
-        {
-            return this == other;
         }
     }
 }

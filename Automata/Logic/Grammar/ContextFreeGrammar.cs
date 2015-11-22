@@ -42,7 +42,7 @@ namespace Automata
             foreach (var rule in rules)
                 if (!IsValid(rule))
                     throw new ArgumentException("Production rule is invalid.");
-            
+
             // rules
         }
 
@@ -53,7 +53,13 @@ namespace Automata
 
         private bool HasDuplicates(Production[] rules)
         {
-            return rules.Distinct().Count() < rules.Length;
+            int n = rules.Length;
+            for (int i = 0; i < n - 1; i++)
+                for (int j = i + 1; j < n; j++)
+                    if (rules[i] == rules[j])
+                        return true;
+
+            return false;
         }
 
         private GrammarSymbol[] SymbolArrayFromStringArray(string[] symbols)
@@ -76,21 +82,10 @@ namespace Automata
                 return false;
 
             foreach (var symbol in production.DirectDerivation)
-                if (!IsValid(symbol))
+                if (!alphabet.Contains(symbol))
                     return false;
 
             return true;
-        }
-
-        private bool IsValid(string symbol)
-        {
-            if (symbol == GrammarAlphabet.Epsilon.ToString())
-                return true;
-
-            if (alphabet.Contains(symbol))
-                return true;
-
-            return false;
         }
 
         public bool HasSentence(Sentence sentence)

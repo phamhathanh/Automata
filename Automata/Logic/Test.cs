@@ -20,13 +20,18 @@ namespace Automata
             string[] nonterminals = new[] { "S" },
                     terminals = new[] { "0", "1" };
             string starting = "S";
-            Production[] rules = new[] { new Production("S", new[] { "ε" }),
+            Production[] rules = new[] { new Production("S", new string[] {}),
                                         new Production("S", new[] { "0", "S", "1"}),
                                         new Production("S", new[] { "0", "S", "1"}) };
 
-            //Debug.Assert(rules.Distinct().Count() == 2);
-
-            var grammar = new ContextFreeGrammar(nonterminals, terminals, rules, starting);
+            try
+            {
+                var grammar = new ContextFreeGrammar(nonterminals, terminals, rules, starting);
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.Assert(ex.Message == "Terminal symbols cannot contain duplicates.");
+            }
         }
 
         private static void TestRegex()
