@@ -10,9 +10,21 @@ namespace Automata
     {
         private readonly string representation;
 
-        protected GrammarSymbol(string representation)
+        public bool IsTerminal { get; set; }
+
+        public GrammarSymbol(string representation)
         {
             this.representation = representation;
+        }
+
+        public bool Matches(string s)
+        {
+            return s == representation;
+        }
+
+        public override string ToString()
+        {
+            return representation;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class Production
+    class Production : IEquatable<Production>
     {
         private readonly string original;
         private readonly string[] directDerivation;
@@ -36,8 +36,17 @@ namespace Automata
 
         public static bool operator ==(Production production1, Production production2)
         {
-            return production1.original == production2.original
-                && production1.directDerivation == production2.directDerivation;
+            if (production1.original != production2.original)
+                return false;
+
+            if (production1.directDerivation.Length != production2.directDerivation.Length)
+                return false;
+
+            for (int i = 0; i < production1.directDerivation.Length; i++)
+                if (production1.directDerivation[i] != production2.directDerivation[i])
+                    return false;
+
+            return true;
         }
 
         public static bool operator !=(Production production1, Production production2)
@@ -54,6 +63,11 @@ namespace Automata
         {
             return 7 * original.GetHashCode()
                 + 37 * directDerivation.GetHashCode();
+        }
+
+        public bool Equals(Production other)
+        {
+            return this == other;
         }
     }
 }
