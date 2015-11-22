@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Automata.View
+namespace Automata
 {
     /// <summary>
     /// Interaction logic for Grammar.xaml

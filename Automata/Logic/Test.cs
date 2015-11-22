@@ -24,23 +24,32 @@ namespace Automata
                                         new Production("S", new[] { "0", "S", "1"}),
                                         new Production("S", new[] { "0", "S", "1"}) };
 
-            Debug.Assert(rules.Distinct().Count() == 2);
+            //Debug.Assert(rules.Distinct().Count() == 2);
 
             var grammar = new ContextFreeGrammar(nonterminals, terminals, rules, starting);
         }
 
         private static void TestRegex()
         {
-            string pattern = "ab|aba|abba|babaa";
+            string pattern = "(01|1)*(|0|000*)";
             // binary strings with no substring 001
 
             RegularLanguage language = new RegularLanguage(pattern);
-            Automata.Logic.Patterson.Patterson patterson = new Logic.Patterson.Patterson(language);
-            patterson.Check_Code();
+
             Debug.Assert(!language.Contains("001000"));
             Debug.Assert(language.Contains("010101"));
             Debug.Assert(language.Contains("01"));
             Debug.Assert(language.Contains("01\n"));
+        }
+
+        private static void TestPatterson()
+        {
+            string pattern = "ab|aba|abba|babaa";
+
+            RegularLanguage language = new RegularLanguage(pattern);
+            Patterson patterson = new Patterson(language);
+            bool isUniquelyDecodable = patterson.IsUniquelyDecodable();
+            Debug.Assert(isUniquelyDecodable);
         }
     }
 }

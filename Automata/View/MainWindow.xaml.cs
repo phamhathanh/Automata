@@ -25,6 +25,9 @@ namespace Automata
 #if DEBUG
             Automata.Test.RunTest();
 #endif
+
+            var g = new Grammar();
+            g.Show();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
