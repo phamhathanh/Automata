@@ -6,15 +6,16 @@
         xmlns:drawing="clr-namespace:Microsoft.Msagl.Drawing;assembly=Microsoft.Msagl.Drawing"
         xmlns:local="clr-namespace:Automata"
         mc:Ignorable="d"
-        Title="Grammar" Height="650" Width="600" WindowState="Maximized" >
+        Title="Grammar" Height="650" Width="600" WindowState="Maximized" Loaded="Grammar_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>           
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Margin="10" Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -35,8 +36,10 @@
                 </ListView.View>
             </ListView>
             <TextBox Name="alphabetTextBox" Grid.Row="1" Grid.Column="0" Margin="5"/>
-            <Button Grid.Row="2" Grid.Column="0" Margin="5" >New</Button>
-            <ListView Name="stateList" Grid.Row="0" Grid.Column="1" Margin="5">
+            <Button Grid.Row="2" Grid.Column="0" Margin="5" Click="newAlphabetButton_Click">New</Button>
+            <ListView Name="stateList" Grid.Row="0" Grid.Column="1" Margin="5"
+                  ItemsSource="{Binding States, Mode=TwoWay}"
+                  SelectedIndex="{Binding InitialStateIndex, Mode=TwoWay}" SelectionMode="Single" SelectionChanged="stateList_SelectionChanged">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="State" Width="50" DisplayMemberBinding="{Binding ID}"/>
@@ -57,15 +60,15 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Margin="5,5,2.5,5" >Add</Button>
-                <Button Grid.Column="1" Margin="2.5,5,5,5" >Reset</Button>
+                <Button Grid.Column="0" Margin="5,5,2.5,5" Click="addStateButton_Click">Add</Button>
+                <Button Grid.Column="1" Margin="2.5,5,5,5" Click="resetStateButton_Click">Reset</Button>
             </Grid>
-            <ListView Grid.Row="0" Grid.Column="2" Margin="5" >
+            <ListView Grid.Row="0" Grid.Column="2" Margin="5" ItemsSource="{Binding Transitions, Mode=TwoWay}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="From" Width="50" />
-                        <GridViewColumn Header="Symbol" Width="60" />
-                        <GridViewColumn Header="To" Width="50" />
+                        <GridViewColumn Header="From" Width="50" DisplayMemberBinding="{Binding CurrentStateID}"/>
+                        <GridViewColumn Header="Symbol" Width="60" DisplayMemberBinding="{Binding Symbol}"/>
+                        <GridViewColumn Header="To" Width="50" DisplayMemberBinding="{Binding NextStateID}"/>
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -87,20 +90,35 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Margin="5,5,2.5,5">Add</Button>
-                <Button Grid.Column="1" Margin="2.5,5,5,5" >Reset</Button>
+                <Button Grid.Column="0" Margin="5,5,2.5,5" Click="addTransitionButton_Click">Add</Button>
+                <Button Grid.Column="1" Margin="2.5,5,5,5" Click="resetTransitionButton_Click">Reset</Button>
             </Grid>
             <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-              
-                <Button Grid.Column="2" Margin="5" >NFA to Grammar</Button>
+                <TextBox Name="inputTextBox" Grid.Column="0" Margin="5" TextChanged="inputTextBox_TextChanged"></TextBox>
+                <Button Grid.Column="1" Margin="5" Click="checkStringButton_Click">Check String</Button>
+                <Button Grid.Column="2" Margin="5" Click="btnNFAToDFA_Click">NFA to DFA</Button>
+                <Button Grid.Column="3" Margin="5" Click="btnDFAMinimize_Click">DFA Minimize</Button>
+            </Grid>
+            <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="3" Margin="5" FontWeight="Bold" >NFA to Grammar</Button>
             </Grid>
             <DockPanel Name="graphViewPanel" Grid.Column="3" Grid.RowSpan="6" Panel.ZIndex="-1" IsHitTestVisible="False" Grid.ColumnSpan="3"/>
         </Grid>
@@ -111,15 +129,15 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>             
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ListView Name="terminalSymbols" Grid.Column="0" Grid.Row="0"  Margin="5">
                 <ListView.View >
                     <GridView>
-                        <GridViewColumn Header="Terminal Symbols" Width="200"/>             
-                    </GridView>                    
+                        <GridViewColumn Header="Terminal Symbols" Width="200"/>
+                    </GridView>
                 </ListView.View>
-             </ListView>
+            </ListView>
             <ListView Name="symbols" Grid.Column="0" Grid.Row="1"  Margin="5">
                 <ListView.View >
                     <GridView>

@@ -167,7 +167,7 @@ namespace Automata
                     validSymbols.Add(new SymbolViewModel(symbol));
 
             Symbols = new ObservableCollection<SymbolViewModel>(validSymbols);
-            
+
             if (this.symbols.Count == 0)
                 throw new ArgumentException("No valid character.");
 
@@ -249,6 +249,20 @@ namespace Automata
             return automaton.AcceptString(input);
         }
 
+        public void NFAtoDFA()
+        {
+            FiniteAutomaton automaton = GenerateAutomaton();
+            DFAConverter converter = new DFAConverter(automaton);
+            UpdateViewModelFromAutomaton(converter.GetOutputDFA());
+        }
+
+        public void DFAMinimize()
+        {
+            FiniteAutomaton automaton = GenerateAutomaton();
+            Logic.FiniteAutomata.DFAMinimization minimizer = new Logic.FiniteAutomata.DFAMinimization(automaton);
+            UpdateViewModelFromAutomaton(minimizer.GetMinimizedDFA());
+        }
+
         private FiniteAutomaton GenerateAutomaton()
         {
             List<Symbol> symbols = new List<Symbol>(Symbols.Count);
@@ -275,9 +289,44 @@ namespace Automata
                                         InitialStateIndex, acceptingStateIndexes.ToArray());
         }
 
+        private void UpdateViewModelFromAutomaton(FiniteAutomaton automaton)
+        {
+            ResetAll();
+            // Alphabet
+            Alphabet newAlphabet = automaton.GetAlphabet();
+            List<char> newChars = new List<char>();
+            for (int i = 0; i < newAlphabet.Length; i++)
+            {
+                newChars.Add(newAlphabet[i].ToChar());
+            }
+            ResetAlphabet(newChars.ToArray());
+
+            // States & Transitions & Accepting Indexes
+            State[] newStates = automaton.GetStates();
+            for (int i = 0; i < newStates.Length; i++)
+            {
+                AddState(i.ToString(), newStates[i].IsAccepting);
+            }
+            for (int i = 0; i < newStates.Length; i++)
+            {
+                for (int j = 0; j < newAlphabet.Length; j++)
+                {
+                    State[] nextStates = newStates[i].GetNextStates(newAlphabet[j]).ToArray();
+                    if (nextStates.Length == 1)
+                    {
+                        var nextState = nextStates[0];
+                        int nextStateIndex = Array.IndexOf(newStates, nextState);
+                        AddTransition(i.ToString(), newAlphabet[j].ToChar(), nextStateIndex.ToString());
+                    }
+                }
+            }
+        }
+
         private int IndexFromID(string stateID)
         {
             return int.Parse(stateID);
         }
+
+
     }
 }

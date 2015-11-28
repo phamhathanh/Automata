@@ -21,6 +21,11 @@ namespace Automata
             return representation;
         }
 
+        public char ToChar()
+        {
+            return representation[0];
+        }
+
         public static implicit operator Symbol(char c)
         {
             return new Symbol(c);

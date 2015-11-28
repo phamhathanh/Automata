@@ -67,6 +67,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Logic\FiniteAutomata\DFAMinimization.cs" />
     <Compile Include="Logic\Grammar\ContextFreeGrammar.cs" />
     <Compile Include="Logic\Grammar\GrammarAlphabet.cs" />
     <Compile Include="Logic\Grammar\GrammarSymbol.cs" />
@@ -84,6 +85,10 @@
     <Compile Include="Logic\FiniteAutomata\Symbol.cs" />
     <Compile Include="Logic\FiniteAutomata\Transition.cs" />
     <Compile Include="ViewModel\TransitionViewModel.cs" />
+    <Page Include="View\CodeChecker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Grammar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -98,6 +103,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Logic\FiniteAutomata\FiniteAutomaton.cs" />
+    <Compile Include="View\CodeChecker.xaml.cs">
+      <DependentUpon>CodeChecker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Grammar.xaml.cs">
       <DependentUpon>Grammar.xaml</DependentUpon>
     </Compile>

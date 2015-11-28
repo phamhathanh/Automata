@@ -23,6 +23,8 @@ namespace Automata
 
             // Initialize graph with δ*(q0, epsilon)
             stateConversionGraph.Add(0, input.PEpsilonClosure(new State[] { input.GetInitialState() }));
+            if (IsDFAStateAccepting(0))
+                dfaAcceptingStateIndexes.Add(0);
             dfaUnvisitedStateIndexes.Enqueue(0);
 
             Alphabet alphabet = input.GetAlphabet();
@@ -93,44 +95,6 @@ namespace Automata
                 }
             }
             return false;
-        }
-    }
-
-    partial class FiniteAutomaton
-    {
-        /*
-         * This part is temporarily used for DFAConverter class
-         */
-        public State GetInitialState()
-        {
-            return initialState;
-        }
-
-        public Alphabet GetAlphabet()
-        {
-            return this.alphabet;
-        }
-        
-        public IEnumerable<State> PEpsilonClosure(IEnumerable<State> states)
-        {
-            return EpsilonClosure(states);
-        }
-        public IEnumerable<State> Move(IEnumerable<State> states, Symbol symbol)
-        {
-            // return Extended transition δ*(T, a) for both NFA & DFA
-            IEnumerable<State> closure = EpsilonClosure(states);
-            List<State> raw_results = new List<State>();
-            foreach (State state in closure)
-            {
-                IEnumerable<State> aStates = state.GetNextStates(symbol);
-                foreach (State aState in aStates)
-                {
-                    if (!raw_results.Contains(aState))
-                        raw_results.Add(aState);
-                }
-            }
-
-            return EpsilonClosure(raw_results);
         }
     }
 }

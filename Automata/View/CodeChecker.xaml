@@ -1,0 +1,14 @@
+﻿<Window x:Class="Automata.View.CodeChecker"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sardiuas - Patterson (1953)" Height="120" Width="500" WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBox Name="txtInputLanguage" Grid.Row="0" Grid.Column="0" Margin="5"/>
+        <Button Name="btnCheckCode" Grid.Row="1" Grid.Column="0" Margin="5" Click="btnCheckCode_Click">Check</Button>
+    </Grid>
+</Window>
