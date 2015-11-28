@@ -13,25 +13,39 @@ namespace Automata
         private readonly Production[] rules;
 
         public ContextFreeGrammar(string[] nonterminals, string[] terminals,
-                                                            Production[] rules, string starting)
+                                                            ProductionInfo[] rules, string starting)
         {
             if (HasDuplicates(nonterminals))
                 throw new ArgumentException("Nonterminal symbols cannot contain duplicates.");
             if (HasDuplicates(terminals))
                 throw new ArgumentException("Terminal symbols cannot contain duplicates.");
             if (HasDuplicates(rules))
-                throw new ArgumentException("Terminal symbols cannot contain duplicates.");
+                throw new ArgumentException("Rules cannot contain duplicates.");
 
             bool overlap = terminals.Intersect(nonterminals).Any();
             if (overlap)
                 throw new ArgumentException("Terminal symbols and nonterminal symbols are not disjoint.");
 
-            var nonterminalArray = SymbolArrayFromStringArray(nonterminals);
-            this.nonterminals = new GrammarAlphabet(nonterminalArray);
-            var terminalArray = SymbolArrayFromStringArray(terminals);
-            this.terminals = new GrammarAlphabet(terminalArray);
+            var symbolByString = new Dictionary<string, GrammarSymbol>(nonterminals.Length + terminals.Length);
 
-            this.alphabet = new GrammarAlphabet((nonterminalArray).Concat(terminalArray).ToArray());
+            var nonterminalArray = new GrammarSymbol[nonterminals.Length];
+            for (int i = 0; i < nonterminals.Length; i++)
+            {
+                nonterminalArray[i] = new GrammarSymbol(nonterminals[i], false);
+                symbolByString.Add(nonterminals[i], nonterminalArray[i]);
+            }
+            this.nonterminals = new GrammarAlphabet(nonterminalArray);
+
+            var terminalArray = new GrammarSymbol[terminals.Length];
+            for (int i = 0; i < nonterminals.Length; i++)
+            {
+                terminalArray[i] = new GrammarSymbol(terminals[i], false);
+                symbolByString.Add(terminals[i], terminalArray[i]);
+            }
+            this.nonterminals = new GrammarAlphabet(nonterminalArray);
+
+            var alphabetArray = (nonterminalArray).Concat(terminalArray).ToArray();
+            this.alphabet = new GrammarAlphabet(alphabetArray);
 
             int startingIndex = Array.IndexOf(nonterminals, starting);
             if (startingIndex < 0)
@@ -39,11 +53,22 @@ namespace Automata
 
             this.starting = nonterminalArray[startingIndex];
 
+            var ruleList = new List<Production>(rules.Length);
             foreach (var rule in rules)
+            {
                 if (!IsValid(rule))
                     throw new ArgumentException("Production rule is invalid.");
 
-            // rules
+                GrammarSymbol original = symbolByString[rule.Original];
+
+                var sentenceSymbols = new List<GrammarSymbol>();
+                foreach (string s in rule.DirectDerivative)
+                    sentenceSymbols.Add(symbolByString[s]);
+                Sentence sentence = new Sentence(sentenceSymbols.ToArray());
+
+                ruleList.Add(new Production(original, sentence));
+            }
+            this.rules = ruleList.ToArray();
         }
 
         private bool HasDuplicates(string[] symbols)
@@ -51,7 +76,7 @@ namespace Automata
             return symbols.Distinct().Count() < symbols.Length;
         }
 
-        private bool HasDuplicates(Production[] rules)
+        private bool HasDuplicates(ProductionInfo[] rules)
         {
             int n = rules.Length;
             for (int i = 0; i < n - 1; i++)
@@ -62,17 +87,7 @@ namespace Automata
             return false;
         }
 
-        private GrammarSymbol[] SymbolArrayFromStringArray(string[] symbols)
-        {
-            int n = symbols.Length;
-            var output = new GrammarSymbol[n];
-            for (int i = 0; i < n; i++)
-                output[i] = new GrammarSymbol(symbols[i]);
-
-            return output;
-        }
-
-        private bool IsValid(Production production)
+        private bool IsValid(ProductionInfo production)
         {
             Debug.Assert(nonterminals != null);
             Debug.Assert(terminals != null);
@@ -81,12 +96,13 @@ namespace Automata
             if (!nonterminals.Contains(production.Original))
                 return false;
 
-            foreach (var symbol in production.DirectDerivation)
+            foreach (var symbol in production.DirectDerivative)
                 if (!alphabet.Contains(symbol))
                     return false;
 
             return true;
         }
+
 
         public bool HasSentence(Sentence sentence)
         {

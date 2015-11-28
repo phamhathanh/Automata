@@ -9,26 +9,21 @@ namespace Automata
     class GrammarSymbol
     {
         private readonly string representation;
+        private readonly bool isTerminal;
 
-        private Sentence[] directDerivatives;
+        public bool IsTerminal
+        {
+            get
+            {
+                return isTerminal;
+            }
+        }
 
-        public bool IsTerminal { get; set; }
-
-        /* TODO: immutability, like the states
-         *       no derivatives if terminal (may be only assert)
-         */
-
-        public GrammarSymbol(string representation)
+        public GrammarSymbol(string representation, bool isTerminal)
         {
             this.representation = representation;
+            this.isTerminal = isTerminal;
         }
-
-        public IEnumerable<Sentence> GetDirectDerivatives()
-        {
-            throw new NotImplementedException();
-        }
-
-
 
         public bool Matches(string s)
         {

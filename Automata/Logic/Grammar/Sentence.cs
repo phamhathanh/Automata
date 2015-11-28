@@ -5,16 +5,16 @@ using System.Linq;
 
 namespace Automata
 {
-    class Sentence : IEnumerable<Symbol>
+    class Sentence : IEnumerable<GrammarSymbol>
     {
-        private Symbol[] symbols;
+        private readonly GrammarSymbol[] symbols;
 
-        public Sentence(Symbol[] symbols)
+        public Sentence(GrammarSymbol[] symbols)
         {
-            this.symbols = (Symbol[])symbols.Clone();
+            this.symbols = (GrammarSymbol[])symbols.Clone();
         }
 
-        public IEnumerator<Symbol> GetEnumerator()
+        public IEnumerator<GrammarSymbol> GetEnumerator()
         {
             foreach (var symbol in symbols)
                 yield return symbol;

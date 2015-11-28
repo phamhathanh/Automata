@@ -20,9 +20,9 @@ namespace Automata
             string[] nonterminals = new[] { "S" },
                     terminals = new[] { "0", "1" };
             string starting = "S";
-            Production[] rules = new[] { new Production("S", new string[] {}),
-                                        new Production("S", new[] { "0", "S", "1"}),
-                                        new Production("S", new[] { "0", "S", "1"}) };
+            ProductionInfo[] rules = new[] { new ProductionInfo("S", new string[] {}),
+                                        new ProductionInfo("S", new[] { "0", "S", "1"}),
+                                        new ProductionInfo("S", new[] { "0", "S", "1"}) };
 
             try
             {
