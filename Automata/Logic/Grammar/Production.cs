@@ -19,5 +19,10 @@ namespace Automata
             this.original = original;
             this.directDerivative = directDerivative;
         }
+
+        public override string ToString()
+        {
+            return original.ToString() + " -> " + directDerivative.ToString();
+        }
     }
 }

@@ -11,11 +11,10 @@ namespace Automata
     {
         public static void RunTest()
         {
-            TestGrammar();
-            TestRegex();
+            CYKTest();
         }
 
-        private static void TestGrammar()
+        private static void GrammarTest()
         {
             string[] nonterminals = new[] { "S" },
                     terminals = new[] { "0", "1" };
@@ -30,11 +29,11 @@ namespace Automata
             }
             catch (ArgumentException ex)
             {
-                Debug.Assert(ex.Message == "Terminal symbols cannot contain duplicates.");
+                Debug.Assert(ex.Message == "Rules cannot contain duplicates.");
             }
         }
 
-        private static void TestRegex()
+        private static void RegexTest()
         {
             string pattern = "(01|1)*(|0|000*)";
             // binary strings with no substring 001
@@ -47,7 +46,7 @@ namespace Automata
             Debug.Assert(language.Contains("01\n"));
         }
 
-        private static void TestPatterson()
+        private static void PattersonTest()
         {
             string pattern = "ab|aba|abba|babaa";
 
@@ -55,6 +54,23 @@ namespace Automata
             Patterson patterson = new Patterson(language);
             bool isUniquelyDecodable = patterson.IsUniquelyDecodable();
             Debug.Assert(isUniquelyDecodable);
+        }
+
+        private static void CYKTest()
+        {
+            string[] nonterminals = new[] { "S" },
+                    terminals = new[] { "0", "1" };
+            string starting = "S";
+            ProductionInfo[] rules = new[] { new ProductionInfo("S", new[] {"0", "S", "1"}),
+                                             new ProductionInfo("S", new string[] {}) };
+
+            var contextFreeGrammar = new ContextFreeGrammar(nonterminals, terminals, rules, starting);
+            var normalForm = contextFreeGrammar.GetChomskyNormalForm();
+
+            string[] sentence1 = new[] { "0", "1", "1", "0", "0", "0" },
+                     sentence2 = new[] { "0", "0", "0", "1", "1", "1" };
+            //Debug.Assert(!normalForm.HasSentence(sentence1));
+            Debug.Assert(normalForm.HasSentence(sentence2));
         }
     }
 }
