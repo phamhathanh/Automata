@@ -71,7 +71,7 @@ namespace Automata
 
         public bool AcceptString(string input)
         {
-            IEnumerable<State> currentStates = new State[] { initialState };
+            IEnumerable<State> currentStates = EpsilonClosure(new State[] { initialState });
             foreach (Symbol symbol in input)
                 currentStates = NextStates(currentStates, symbol);
 

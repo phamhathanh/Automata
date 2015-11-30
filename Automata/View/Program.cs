@@ -57,6 +57,9 @@ namespace Automata
                     case 'g':
                         CheckSentence();
                         break;
+                    case 'u':
+                        CheckUniquelyDecodability();
+                        break;
                     case 'x':
                         Console.WriteLine("The program will now exit.");
                         Console.WriteLine("Press any key to continue...");
@@ -171,18 +174,36 @@ namespace Automata
 
         private static void DisplayGrammar()
         {
+            if (grammar == null)
+            {
+                Console.WriteLine("Please enter a grammar first.");
+                return;
+            }
+
             foreach (string rule in grammar.Rules)
                 Console.WriteLine(rule);
         }
 
         private static void DisplayNormalForm()
         {
+            if (grammar == null)
+            {
+                Console.WriteLine("Please enter a grammar first.");
+                return;
+            }
+
             foreach (string rule in normalForm.Rules)
                 Console.WriteLine(rule);
         }
 
         private static void CheckSentence()
         {
+            if (grammar == null)
+            {
+                Console.WriteLine("Please enter a grammar first.");
+                return;
+            }
+
             string[] symbols;
             while (true)
             {

@@ -88,10 +88,6 @@
     <Compile Include="Logic\FiniteAutomata\Transition.cs" />
     <Compile Include="ViewModel\TransitionViewModel.cs" />
     <Compile Include="View\Program.cs" />
-    <Page Include="View\Grammar.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -102,9 +98,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Logic\FiniteAutomata\FiniteAutomaton.cs" />
-    <Compile Include="View\Grammar.xaml.cs">
-      <DependentUpon>Grammar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

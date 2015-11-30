@@ -130,11 +130,13 @@ namespace Automata
 
         private bool TwoCollectionEqual(List<string> list1, List<string> list2)
         {
-            for (int i = 0; i < list2.Count; i++)
-            {
-                if (!list1.Contains(list2[i]))
+            if (list1.Count != list2.Count)
+                return false;
+
+            for (int i = 0; i < list1.Count; i++)
+                if (list1[i] != list2[i])
                     return false;
-            }
+
             return true;
         }
     }
