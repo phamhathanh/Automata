@@ -118,45 +118,86 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="3" Margin="5" FontWeight="Bold" >NFA to Grammar</Button>
+                <Button Grid.Column="3" Margin="5" FontWeight="Bold" Click="btnGrammarToCFG_Click">NFA to Grammar</Button>
             </Grid>
             <DockPanel Name="graphViewPanel" Grid.Column="3" Grid.RowSpan="6" Panel.ZIndex="-1" IsHitTestVisible="False" Grid.ColumnSpan="3"/>
         </Grid>
-        <Grid Grid.Row="1" Height="300">
+        <Grid Grid.Row="1" Height="220">
             <Grid.RowDefinitions>
                 <RowDefinition Height="150"/>
-                <RowDefinition Height="150"/>
+                <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ListView Name="terminalSymbols" Grid.Column="0" Grid.Row="0"  Margin="5">
+            <Grid Grid.Row="0" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                
+                <TextBox Name="txtCFGNonterminal" Grid.Row="0" Grid.Column="0" Margin="5" Text="S, A, X, Y"/>
+                <TextBox Name="txtCFGTerminal" Grid.Row="1" Grid.Column="0" Margin="5" Text="a, b"/>
+                <TextBox Name="txtCFGRules" Grid.Row="2" Grid.Column="0" Margin="5" Text="S=&gt;a" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" AcceptsReturn="True" />
+                <Button Grid.Row="3" Margin="5" Click="btnNewCFG_Click">Create new CFG</Button>
+            </Grid>
+            <ListView Name="symbols" Grid.Column="1" Grid.Row="0"  Margin="5" ItemsSource="{Binding CFGNonterminals}">
                 <ListView.View >
                     <GridView>
-                        <GridViewColumn Header="Terminal Symbols" Width="200"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-            <ListView Name="symbols" Grid.Column="0" Grid.Row="1"  Margin="5">
-                <ListView.View >
-                    <GridView>
-                        <GridViewColumn Header="Nonterminal Symbols" Width="200"/>
+                        <GridViewColumn Header="Nonterminal Symbols" Width="120" DisplayMemberBinding="{Binding Symbol}"/>
                     </GridView>
 
                 </ListView.View>
 
             </ListView>
-            <ListView Name="grammar" Grid.Column="1" Margin="5">
+            <ListView Name="terminalSymbols" Grid.Column="2" Grid.Row="0"  Margin="5" ItemsSource="{Binding CFGTerminals}">
                 <ListView.View >
                     <GridView>
-                        <GridViewColumn Header="" Width="200"/>
-                        <GridViewColumn Header="---->" Width="200"/>
-                        <GridViewColumn Header="" Width="200"/>
+                        <GridViewColumn Header="Terminal Symbols" Width="120" DisplayMemberBinding="{Binding Symbol}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <ListView Name="grammar" Grid.Column="3" Margin="5" ItemsSource="{Binding CFGGrammarRules}">
+                <ListView.View >
+                    <GridView>
+                        <GridViewColumn Header="From" Width="150"  DisplayMemberBinding="{Binding From}"/>
+                        <GridViewColumn Header="To" Width="150"  DisplayMemberBinding="{Binding To}"/>
                     </GridView>
                 </ListView.View>
 
             </ListView>
+
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="50"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Name="txtCYKTestString" Grid.Column="0" Margin="5"></TextBox>
+                <Button Grid.Column="1" Margin="5" Click="btnCYKCheck_Click">Check String</Button>
+                <Label Grid.Column="0" Grid.Row="1">CYK Algorithm</Label>
+            </Grid>
+
+            <Grid Grid.Row="1" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1" Margin="5" FontWeight="Bold" Click="btnCFGToGrammar_Click">Grammar to NFA</Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

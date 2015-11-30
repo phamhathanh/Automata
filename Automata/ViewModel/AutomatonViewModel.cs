@@ -17,6 +17,9 @@ namespace Automata
         private ObservableCollection<SymbolViewModel> symbols;
         private ObservableCollection<StateViewModel> states;
         private ObservableCollection<TransitionViewModel> transitions;
+        private ObservableCollection<SymbolViewModel> cfgNonterminals;
+        private ObservableCollection<SymbolViewModel> cfgTerminals;
+        private ObservableCollection<GrammarRuleViewModel> cfgGrammarRules;
 
         public Graph Graph
         {
@@ -83,6 +86,48 @@ namespace Automata
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public ObservableCollection<SymbolViewModel> CFGNonterminals
+        {
+            get
+            {
+                return cfgNonterminals;
+            }
+            set
+            {
+                cfgNonterminals = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("CFGNonterminals"));
+            }
+        }
+
+        public ObservableCollection<SymbolViewModel> CFGTerminals
+        {
+            get
+            {
+                return cfgTerminals;
+            }
+            set
+            {
+                cfgTerminals = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("CFGTerminals"));
+            }
+        }
+
+        public ObservableCollection<GrammarRuleViewModel> CFGGrammarRules
+        {
+            get
+            {
+                return cfgGrammarRules;
+            }
+            set
+            {
+                cfgGrammarRules = value;
+                if (PropertyChanged != null)
+                    PropertyChanged(this, new PropertyChangedEventArgs("CFGGrammarRules"));
+            }
+        }
 
         public AutomatonViewModel()
         {
@@ -251,16 +296,24 @@ namespace Automata
 
         public void NFAtoDFA()
         {
-            FiniteAutomaton automaton = GenerateAutomaton();
-            DFAConverter converter = new DFAConverter(automaton);
-            UpdateViewModelFromAutomaton(converter.GetOutputDFA());
+            try
+            {
+                FiniteAutomaton automaton = GenerateAutomaton();
+                DFAConverter converter = new DFAConverter(automaton);
+                UpdateViewModelFromAutomaton(converter.GetOutputDFA());
+            }
+            catch { }
         }
 
         public void DFAMinimize()
         {
-            FiniteAutomaton automaton = GenerateAutomaton();
-            Logic.FiniteAutomata.DFAMinimization minimizer = new Logic.FiniteAutomata.DFAMinimization(automaton);
-            UpdateViewModelFromAutomaton(minimizer.GetMinimizedDFA());
+            try
+            {
+                FiniteAutomaton automaton = GenerateAutomaton();
+                Logic.FiniteAutomata.DFAMinimization minimizer = new Logic.FiniteAutomata.DFAMinimization(automaton);
+                UpdateViewModelFromAutomaton(minimizer.GetMinimizedDFA());
+            }
+            catch { }
         }
 
         private FiniteAutomaton GenerateAutomaton()
@@ -289,6 +342,38 @@ namespace Automata
                                         InitialStateIndex, acceptingStateIndexes.ToArray());
         }
 
+        private CFG GenerateCFG()
+        {
+            List<Symbol> _nonterminals = new List<Symbol>();
+            foreach (var k in CFGNonterminals)
+            {
+                _nonterminals.Add(new Symbol(k.Symbol));
+            }
+
+            List<Symbol> _terminals = new List<Symbol>();
+            foreach (var k in CFGTerminals)
+            {
+                _terminals.Add(new Symbol(k.Symbol));
+            }
+
+            List<Rule> _rules = new List<Rule>();
+            int test = 0;
+            foreach (var k in CFGGrammarRules)
+            {
+                Console.WriteLine(test + "");
+                test++;
+                List<Symbol> _tos = new List<Symbol>();
+                foreach (char c in k.To.ToCharArray())
+                {
+                    _tos.Add(new Symbol(c));
+                }
+                if (_tos.Count > 0)
+                    _rules.Add(new Rule(k.From, _tos.ToArray()));
+            }
+
+            return new CFG(_nonterminals, _terminals, _rules);
+        }
+
         private void UpdateViewModelFromAutomaton(FiniteAutomaton automaton)
         {
             ResetAll();
@@ -312,11 +397,14 @@ namespace Automata
                 for (int j = 0; j < newAlphabet.Length; j++)
                 {
                     State[] nextStates = newStates[i].GetNextStates(newAlphabet[j]).ToArray();
-                    if (nextStates.Length == 1)
+                    if (nextStates.Length > 0)
                     {
-                        var nextState = nextStates[0];
-                        int nextStateIndex = Array.IndexOf(newStates, nextState);
-                        AddTransition(i.ToString(), newAlphabet[j].ToChar(), nextStateIndex.ToString());
+                        for (int k = 0; k < nextStates.Length; k++)
+                        {
+                            var nextState = nextStates[k];
+                            int nextStateIndex = Array.IndexOf(newStates, nextState);
+                            AddTransition(i.ToString(), newAlphabet[j].ToChar(), nextStateIndex.ToString());
+                        }
                     }
                 }
             }
@@ -327,6 +415,138 @@ namespace Automata
             return int.Parse(stateID);
         }
 
+        public void GrammarReset(char[] nonTerminals, char[] terminals, char[] froms, string[] tos)
+        {
+            List<SymbolViewModel> nonTerminalModels = new List<SymbolViewModel>();
+            foreach (char c in nonTerminals)
+                nonTerminalModels.Add(new SymbolViewModel(c));
+            CFGNonterminals = new ObservableCollection<SymbolViewModel>(nonTerminalModels);
 
+            List<SymbolViewModel> terminalModels = new List<SymbolViewModel>();
+            foreach (char c in terminals)
+                terminalModels.Add(new SymbolViewModel(c));
+            CFGTerminals = new ObservableCollection<SymbolViewModel>(terminalModels);
+
+            int numOfRules = froms.Length > tos.Length ? tos.Length : froms.Length;
+
+            List<GrammarRuleViewModel> _rules = new List<GrammarRuleViewModel>();
+
+            for (int i = 0; i < numOfRules; i++)
+                _rules.Add(new GrammarRuleViewModel(froms[i], tos[i]));
+            CFGGrammarRules = new ObservableCollection<GrammarRuleViewModel>(_rules);
+        }
+
+        public bool IsCYKAccepted(string testString)
+        {
+            CYK cykChecker = new CYK(GenerateCFG());
+
+            return cykChecker.isStringAcceptable(testString);
+        }
+
+        public void CFGtoNFA()
+        {
+            List<Symbol> symbols = new List<Symbol>(CFGTerminals.Count);
+            List<char> symbolChars = new List<char>(CFGTerminals.Count);
+            foreach (var s in CFGTerminals)
+            {
+                symbols.Add(new Symbol(s.Symbol));
+                symbolChars.Add(s.Symbol);
+            }
+            Alphabet alphabet = new Alphabet(symbols.ToArray());
+            List<char> stateChars = new List<char>(CFGNonterminals.Count);
+            foreach (var s in CFGNonterminals)
+            {
+                stateChars.Add(s.Symbol);
+            }
+
+            int additionalStateCount = 0;
+            List<Transition> transitions = new List<Transition>();
+            for (int i = 0; i < CFGGrammarRules.Count; i++)
+            {
+                char[] ruleToArray = CFGGrammarRules[i].To.ToCharArray();
+
+                int numOfNonterminals = 0;
+                int numOfTerminals = 0;
+
+                for (int j = 0; j < ruleToArray.Length; j++)
+                {
+                    if (symbolChars.Contains(ruleToArray[j]))
+                    {
+                        numOfTerminals++;
+                    }
+                    if (stateChars.Contains(ruleToArray[j]))
+                    {
+                        numOfNonterminals++;
+                    }
+                }
+                Console.WriteLine("Rule" + i + ": " + numOfTerminals + "----" + numOfNonterminals);
+                if (numOfTerminals == 0 || numOfNonterminals > 1 || (numOfNonterminals == 1 && !stateChars.Contains(ruleToArray[ruleToArray.Length - 1])))
+                    continue;
+
+                int previousIndex = stateChars.IndexOf(CFGGrammarRules[i].From);
+                Console.WriteLine("From: " + previousIndex);
+                if (previousIndex > -1)
+                {
+                    for (int j = 0; j < numOfTerminals; j++)
+                    {
+                        if (j == numOfTerminals - 1)
+                        {
+                            if (numOfNonterminals == 0)
+                            {
+                                transitions.Add(new Transition(previousIndex, new Symbol(ruleToArray[j]), CFGNonterminals.Count));
+                                Console.WriteLine(previousIndex + "-" + ruleToArray[j] + "-" + CFGNonterminals.Count);
+                            }
+                            else
+                            {
+                                transitions.Add(new Transition(previousIndex, new Symbol(ruleToArray[j]), stateChars.IndexOf(ruleToArray[ruleToArray.Length - 1])));
+                                Console.WriteLine(previousIndex + "-" + ruleToArray[j] + "-" + stateChars.IndexOf(ruleToArray[ruleToArray.Length - 1]));
+                            }
+                        }
+                        else
+                        {
+                            transitions.Add(new Transition(previousIndex, new Symbol(ruleToArray[j]), CFGNonterminals.Count + additionalStateCount + 1));
+                            Console.WriteLine(previousIndex + "-" + ruleToArray[j] + "-" + (CFGNonterminals.Count + additionalStateCount + 1));
+                            previousIndex = CFGNonterminals.Count + additionalStateCount + 1;
+                            additionalStateCount++;
+                        }
+                    }
+                }
+            }
+            FiniteAutomaton automaton = new FiniteAutomaton(CFGNonterminals.Count + 1 + additionalStateCount, alphabet, transitions.ToArray(), 0, new int[] { CFGNonterminals.Count });
+
+            UpdateViewModelFromAutomaton(automaton);
+        }
+
+        public void NFAtoCFG()
+        {
+            string nonterminalChars = "ABCDEFGHIKLMNOPQRSWXYZ";
+
+            char[] nonTerminals = new char[States.Count];
+            List<char> terminals = new List<char>();
+            char[] transitionFrom = new char[Transitions.Count + 1];
+            string[] transitionTo = new string[Transitions.Count + 1];
+
+            for (int i = 0; i < States.Count; i++)
+            {
+                nonTerminals[i] = nonterminalChars[int.Parse(States[i].ID)];
+            }
+
+            for (int i = 0; i < Symbols.Count; i++)
+            {
+                if (Symbols[i].Symbol != 'ε')
+                    terminals.Add(Symbols[i].Symbol);
+            }
+
+            for (int i = 0; i < Transitions.Count; i++)
+            {
+                transitionFrom[i] = nonterminalChars[int.Parse(Transitions[i].CurrentStateID)];
+                transitionTo[i] = Transitions[i].Symbol.ToString() + nonterminalChars[int.Parse(Transitions[i].NextStateID)] + "";
+            }
+
+            transitionFrom[Transitions.Count] = nonterminalChars[Transitions.Count - 1];
+            transitionTo[Transitions.Count] = "ε";
+
+            GrammarReset(nonTerminals, terminals.ToArray(), transitionFrom, transitionTo);
+        }
     }
 }

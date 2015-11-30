@@ -76,6 +76,7 @@
     <Compile Include="Logic\Patterson\Patterson.cs" />
     <Compile Include="Logic\Test.cs" />
     <Compile Include="Logic\RegularLanguage.cs" />
+    <Compile Include="ViewModel\GrammarRuleViewModel.cs" />
     <Compile Include="ViewModel\SymbolViewModel.cs" />
     <Compile Include="ViewModel\AutomatonViewModel.cs" />
     <Compile Include="Logic\FiniteAutomata\DFAConverter.cs" />

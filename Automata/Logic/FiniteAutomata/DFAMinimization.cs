@@ -38,20 +38,24 @@ namespace Automata.Logic.FiniteAutomata
 
                     StatePair nextPair = GetNextPair(pair, sym);
 
-                    if (initialStatePairs.Contains(nextPair))
+                    if (ContainsStatePair(initialStatePairs.ToArray(), nextPair))
                     {
                         if (nextPair.distinguishable == true)
+                        {
                             MarkDistinguishable(pair);
+                        }
                         else
                         {
-                            if (pair != nextPair)
+                            if (pair.state1 != nextPair.state1 || pair.state2 != nextPair.state2)
                                 nextPair.AddFollowingPair(pair);
                         }
                     }
                     else
                     {
                         if (nextPair.state1 != nextPair.state2)
+                        {
                             MarkDistinguishable(pair);
+                        }
                     }
                 }
             }
@@ -63,6 +67,20 @@ namespace Automata.Logic.FiniteAutomata
             }
 
             return equivalentPairs;
+        }
+
+        private bool ContainsStatePair(StatePair[] statePairs, StatePair statePair)
+        {
+            bool result = false;
+            foreach (StatePair pair in statePairs)
+            {
+                if (pair.state1 == statePair.state1 && pair.state2 == statePair.state2)
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
         }
 
         private FiniteAutomaton RemoveEquivalentPairs(List<StatePair> equivalentPairs)

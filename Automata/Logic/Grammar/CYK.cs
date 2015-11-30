@@ -27,13 +27,13 @@ namespace Automata
                 inputSymbols[i] = inputString[i];
             }
             bool result = CYKSolve(inputSymbols);
-            Console.WriteLine(result);
             return result;
         }
 
         public bool isStringAcceptable(IEnumerable<Symbol> inputSymbols)
         {
-            return true;
+            bool result = CYKSolve(inputSymbols);
+            return result;
         }
 
         private bool CYKSolve(IEnumerable<Symbol> inputSymbols)

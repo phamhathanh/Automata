@@ -5,6 +5,7 @@ using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -181,9 +182,70 @@ namespace Automata
             }
             catch (NotSupportedException ex)
             {
-                MessageBox.Show("Completed DFA Required!");
+                MessageBox.Show(ex.ToString());
             }
             UpdateGraph();
+        }
+
+        private void btnNewCFG_Click(object sender, RoutedEventArgs e)
+        {
+            List<char> nonTerminals = new List<char>();
+            foreach (char symbol in txtCFGNonterminal.Text)
+                if (char.IsLetterOrDigit(symbol))
+                    nonTerminals.Add(symbol);
+
+            List<char> terminals = new List<char>();
+            foreach (char symbol in txtCFGTerminal.Text)
+                if (char.IsLetterOrDigit(symbol))
+                    terminals.Add(symbol);
+
+            List<char> ruleFroms = new List<char>();
+            List<string> ruleTos = new List<string>();
+            StringCollection txtRules = GetTextRules();
+
+            foreach (string txtRule in txtRules)
+            {
+                string[] txtRulesSplitted = txtRule.Split(new string[]{"=>"}, StringSplitOptions.None);
+                if (txtRulesSplitted.Length == 2)
+                {
+                    if (txtRulesSplitted[0].Length == 1 && txtRulesSplitted[1].Length > 0)
+                    {
+                        ruleFroms.Add(txtRulesSplitted[0][0]);
+                        ruleTos.Add(txtRulesSplitted[1]);
+                    }
+                }
+            }
+
+            ViewModel.GrammarReset(nonTerminals.ToArray(), terminals.ToArray(), ruleFroms.ToArray(), ruleTos.ToArray());
+        }
+
+        private StringCollection GetTextRules()
+        {
+            var lines = new StringCollection();
+            int lineCount = txtCFGRules.LineCount;
+            for (int line = 0; line < lineCount; line++)
+                lines.Add(txtCFGRules.GetLineText(line).Replace(Environment.NewLine, String.Empty));
+
+            return lines;
+        }
+
+        private void btnCYKCheck_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.IsCYKAccepted(txtCYKTestString.Text))
+                txtCYKTestString.Background = Brushes.LimeGreen;
+            else
+                txtCYKTestString.Background = Brushes.Red;
+        }
+
+        private void btnCFGToGrammar_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.CFGtoNFA();
+            UpdateGraph();
+        }
+
+        private void btnGrammarToCFG_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.NFAtoCFG();
         }
     }
 }

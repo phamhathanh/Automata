@@ -43,7 +43,6 @@ namespace Automata
         {
             if (!IsValid(info.Symbol))
                 throw new ArgumentException("Symbol is not in the alphabet.");
-
             State currentState = GetState(info.CurrentStateIndex),
                     nextState = GetState(info.NextStateIndex);
             Symbol symbol = info.Symbol;
@@ -71,7 +70,7 @@ namespace Automata
 
         public bool AcceptString(string input)
         {
-            IEnumerable<State> currentStates = new State[] { initialState };
+            IEnumerable<State> currentStates = EpsilonClosure(new State[] { initialState });
             foreach (Symbol symbol in input)
                 currentStates = NextStates(currentStates, symbol);
 
