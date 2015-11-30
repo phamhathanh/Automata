@@ -11,6 +11,17 @@ namespace Automata
         private readonly GrammarSymbol starting;
         private readonly Production[] rules;
 
+        public IEnumerable<string> Rules
+        {
+            get
+            {
+                foreach (Production rule in rules)
+                {
+                    yield return rule.Original.ToString() + " --> " + rule.DirectDerivative.ToString();
+                }
+            }
+        }
+
         public ContextFreeGrammar(string[] nonterminals, string[] terminals,
                                                             ProductionInfo[] rules, string starting)
         {

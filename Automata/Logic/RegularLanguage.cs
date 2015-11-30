@@ -26,6 +26,8 @@ namespace Automata
         {
             Regex validExpression = new Regex(@"[w\(\)\|\*]");
             bool expressionIsValid = validExpression.IsMatch(expression);
+            if (!expressionIsValid)
+                throw new ArgumentException("Expression is invalid.");
 
             this.pattern = "^" + expression + "$";
             // ensure regex do not match in substring

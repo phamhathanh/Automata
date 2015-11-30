@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{47A6E650-FF02-4AAB-BCE9-C682A506BBCF}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Automata</RootNamespace>
     <AssemblyName>Automata</AssemblyName>
@@ -33,6 +33,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Msagl">
@@ -79,12 +82,12 @@
     <Compile Include="ViewModel\SymbolViewModel.cs" />
     <Compile Include="ViewModel\AutomatonViewModel.cs" />
     <Compile Include="Logic\FiniteAutomata\DFAConverter.cs" />
-    <Compile Include="Logic\Grammar\CYK.cs" />
     <Compile Include="Logic\FiniteAutomata\State.cs" />
     <Compile Include="ViewModel\StateViewModel.cs" />
     <Compile Include="Logic\FiniteAutomata\Symbol.cs" />
     <Compile Include="Logic\FiniteAutomata\Transition.cs" />
     <Compile Include="ViewModel\TransitionViewModel.cs" />
+    <Compile Include="View\Program.cs" />
     <Page Include="View\Grammar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

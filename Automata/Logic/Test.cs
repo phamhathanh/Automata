@@ -11,6 +11,9 @@ namespace Automata
     {
         public static void RunTest()
         {
+            GrammarTest();
+            RegexTest();
+            PattersonTest();
             CYKTest();
         }
 
@@ -69,7 +72,7 @@ namespace Automata
 
             string[] sentence1 = new[] { "0", "1", "1", "0", "0", "0" },
                      sentence2 = new[] { "0", "0", "0", "1", "1", "1" };
-            //Debug.Assert(!normalForm.HasSentence(sentence1));
+            Debug.Assert(!normalForm.HasSentence(sentence1));
             Debug.Assert(normalForm.HasSentence(sentence2));
         }
     }

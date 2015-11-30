@@ -23,7 +23,8 @@ namespace Automata
             InitializeComponent();
 
 #if DEBUG
-            Automata.Test.RunTest();
+            Test.RunTest();
+            Program.ConsoleUI();
 #endif
         }
 
