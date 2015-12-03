@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Automata
@@ -13,7 +14,50 @@ namespace Automata
         private static ContextFreeGrammar grammar, normalForm;
         private static string starting;
 
-        public static void ConsoleUI()
+        public static void ShowConsoleUI()
+        {
+            char keyPressed;
+            do
+            {
+                Console.WriteLine();
+                Console.WriteLine("Menu:");
+                Console.WriteLine("+ Automata interface (a)");
+                Console.WriteLine("+ Grammar Menu (g)");
+                Console.WriteLine("+ Check if a code is uniquely decodable (c)");
+                Console.WriteLine("+ Exit (x)");
+                Console.WriteLine();
+
+                Console.Write("Enter your option: ");
+
+                keyPressed = Console.ReadKey().KeyChar;
+                Console.WriteLine();
+                Console.WriteLine();
+
+                switch (keyPressed)
+                {
+                    case 'a':
+                        return;
+                    case 'g':
+                        ShowGrammarUI();
+                        break;
+                    case 'c':
+                        CheckUniquelyDecodability();
+                        break;
+                    case 'x':
+                        Console.WriteLine("The program will now exit.");
+                        Console.WriteLine("Press ENTER to continue.");
+                        Console.ReadLine();
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Console.WriteLine("Invalid key.");
+                        break;
+                }
+            }
+            while (keyPressed != 'x');
+        }
+
+        private static void ShowGrammarUI()
         {
             char keyPressed;
             do
@@ -27,7 +71,6 @@ namespace Automata
                 Console.WriteLine("+ Display Chomsky normal form (c)");
                 Console.WriteLine("+ Check if the grammar generates a sentence (g)");
                 Console.WriteLine("+ Reset (r)");
-                Console.WriteLine("+ Check if a code is uniquely decodable. (u)");
                 Console.WriteLine("+ Exit (x)");
                 Console.WriteLine();
 
@@ -56,9 +99,6 @@ namespace Automata
                         break;
                     case 'g':
                         CheckSentence();
-                        break;
-                    case 'u':
-                        CheckUniquelyDecodability();
                         break;
                     case 'x':
                         Console.WriteLine("The program will now exit.");
@@ -232,25 +272,37 @@ namespace Automata
 
         private static void CheckUniquelyDecodability()
         {
-            RegularLanguage language;
+            string expression;
             while (true)
             {
                 Console.Write("Enter the regular expression of the code: ");
-                string input = Console.ReadLine();
-                try
+                expression = Console.ReadLine();
+
+                Regex validExpression = new Regex(@"^[\w\(\)\|\*]*$");
+                bool expressionIsValid = validExpression.IsMatch(expression);
+                if (!expressionIsValid)
                 {
-                    language = new RegularLanguage(input);
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Expression is invalid.");
                     continue;
                 }
-                break;
-            }
 
-            Patterson code = new Patterson(language);
-            Console.WriteLine("Result: The code is {0}uniquely decodable.", (code.IsUniquelyDecodable()) ? "" : "not ");
+                Patterson code = new Patterson(expression);
+
+                bool isUniquelyDecodable;
+                try
+                {
+                    isUniquelyDecodable = code.IsUniquelyDecodable();
+                    
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Expression is invalid.");
+                    continue;
+                }
+
+                Console.WriteLine("Result: The code is {0}uniquely decodable.", (isUniquelyDecodable) ? "" : "not ");
+                return;
+            }
         }
     }
 }

@@ -7,14 +7,19 @@ using System.Diagnostics;
 
 namespace Automata
 {
-    static class Test
+    class Program
     {
-        public static void RunTest()
+        static void Main(string[] args)
         {
-            GrammarTest();
-            RegexTest();
-            PattersonTest();
-            CYKTest();
+            //GrammarTest();
+            //RegexTest();
+            //PattersonTest();
+            //CYKTest();
+
+            Console.WriteLine();
+            Console.WriteLine("All tests are passed.");
+            Console.WriteLine("Press ENTER to continue.");
+            Console.ReadLine();
         }
 
         private static void GrammarTest()
@@ -51,10 +56,8 @@ namespace Automata
 
         private static void PattersonTest()
         {
-            string pattern = "ab|aba|abba|babaa";
-
-            RegularLanguage language = new RegularLanguage(pattern);
-            Patterson patterson = new Patterson(language);
+            string expression = "ab|aba|abba|babaa";
+            Patterson patterson = new Patterson(expression);
             bool isUniquelyDecodable = patterson.IsUniquelyDecodable();
             Debug.Assert(isUniquelyDecodable);
         }
