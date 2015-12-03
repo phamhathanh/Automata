@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Automata.Logic
+﻿namespace Automata.Logic
 {
-    internal class Transition
+    public class Transition
     {
-        private readonly State currentState, nextState;
+        private readonly int currentStateIndex, nextStateIndex;
         private readonly char character;
 
-        public State CurrentStateIndex
+        public int CurrentStateIndex
         {
             get
             {
-                return currentState;
+                return currentStateIndex;
             }
         }
 
-        public State NextStateIndex
+        public int NextStateIndex
         {
             get
             {
-                return nextState;
+                return nextStateIndex;
             }
         }
 
-        public char Symbol
+        public char Character
         {
             get
             {
@@ -35,11 +29,35 @@ namespace Automata.Logic
             }
         }
 
-        public Transition(State currentState, char character, State nextState)
+        public Transition(int currentStateIndex, char character, int nextStateIndex)
         {
-            this.currentState = currentState;
+            this.currentStateIndex = currentStateIndex;
             this.character = character;
-            this.nextState = nextState;
+            this.nextStateIndex = nextStateIndex;
+        }
+
+        public static bool operator ==(Transition transition1, Transition transition2)
+        {
+            return transition1.currentStateIndex == transition2.currentStateIndex
+                && transition1.nextStateIndex == transition2.nextStateIndex
+                && transition1.character == transition2.character;
+        }
+
+        public static bool operator !=(Transition transition1, Transition transition2)
+        {
+            return !(transition1 == transition2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Transition && this == (Transition)obj;
+        }
+
+        public override int GetHashCode()
+        {
+            return 7 * currentStateIndex.GetHashCode()
+                + 17 * character.GetHashCode()
+                + 37 * nextStateIndex.GetHashCode();
         }
     }
 }

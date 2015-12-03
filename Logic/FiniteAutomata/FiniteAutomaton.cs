@@ -10,56 +10,99 @@ namespace Automata.Logic
     {
         private readonly Alphabet alphabet;
         private readonly State[] states;
-        private readonly State initialState;
+        private readonly int initialIndex;
+        private readonly int[] acceptingIndexes;
+        private readonly TransitionTable table;
 
-        public FiniteAutomaton(int statesCount, Alphabet alphabet, TransitionInfo[] transitions,
-                                                    int initialStateIndex, int[] acceptingStateIndexes)
+        public IEnumerable<char> Characters
         {
-            this.alphabet = alphabet;
+            get
+            {
+                foreach (char character in alphabet)
+                    yield return character;
+            }
+        }
+        public int StatesCount
+        {
+            get
+            {
+                return states.Length;
+            }
+        }
+        public int InitialIndex
+        {
+            get
+            {
+                return initialIndex;
+            }
+        }
+        public IEnumerable<int> AcceptingIndexes
+        {
+            get
+            {
+                foreach (int index in acceptingIndexes)
+                    yield return index;
+            }
+        }
+
+        //TODO: internal exposure?
+
+        public FiniteAutomaton(int statesCount, char[] alphabet, Transition[] transitions,
+                                                    int initialIndex, int[] acceptingIndexes)
+        {
+            ValidateAlphabet(alphabet);
+            this.alphabet = new Alphabet(alphabet);
 
             this.states = new State[statesCount];
             for (int i = 0; i < statesCount; i++)
-                states[i] = new State();
+                this.states[i] = new State();
 
-            this.initialState = GetState(initialStateIndex);
+            if (ArrayHasDuplicates(acceptingIndexes))
+                throw new ArgumentException("Accepting indexes cannot contain duplicates.");
+            this.acceptingIndexes = (int[])acceptingIndexes.Clone();
 
-            bool hasDuplicates = transitions.Distinct().Count() < transitions.Length;
-            if (hasDuplicates)
+            if (initialIndex < 0 || initialIndex >= states.Length)
+                throw new ArgumentOutOfRangeException("Initial state index is out of range.");
+            this.initialIndex = initialIndex;
+
+            if (ArrayHasDuplicates(transitions))
                 throw new ArgumentException("Transitions cannot contain duplicates.");
+            this.table = new TransitionTable();
+
             foreach (var info in transitions)
                 AddTransition(info);
-            
-            for (int i = 0; i < acceptingStateIndexes.Length; i++)
-            {
-                State state = GetState(acceptingStateIndexes[i]);
-                state.IsAccepting = true;
-            }
-
-            foreach (State state in states)
-                state.WrapUp();
         }
 
-        private void AddTransition(TransitionInfo info)
+        private void ValidateAlphabet(char[] alphabet)
         {
-            if (!IsValid(info.Symbol))
+            if (ArrayHasDuplicates(alphabet))
+                throw new ArgumentException("Alphabet cannot contain duplicates.");
+            if (alphabet.Contains(Alphabet.Epsilon))
+                throw new ArgumentException("Alphabet cannot contain the epsilon character.");
+        }
+
+        private bool ArrayHasDuplicates<T>(T[] array)
+        {
+            return array.Distinct().Count() < array.Length;
+        }
+
+        private void AddTransition(Transition transition)
+        {
+            char character = transition.Character;
+            bool isValid = character == Alphabet.Epsilon || alphabet.Contains(character);
+            if (isValid)
                 throw new ArgumentException("Character is invalid.");
 
-            State currentState = GetState(info.CurrentStateIndex),
-                    nextState = GetState(info.NextStateIndex);
-            char symbol = info.Symbol;
+            int currentIndex = transition.CurrentStateIndex,
+                nextIndex = transition.NextStateIndex;
+            State current = StateFromIndex(currentIndex),
+                    next = StateFromIndex(nextIndex);
 
-            currentState.AddTransition(symbol, nextState);
-        }
-        
-        private bool IsValid(char character)
-        {
-            if (character.Equals(Alphabet.Epsilon))
-                return true;
-
-            return alphabet.Contains(character);
+            Debug.Assert(table != null);
+            table.Add(current, character, next);
         }
 
-        private State GetState(int stateIndex)
+        private State StateFromIndex(int stateIndex)
         {
             Debug.Assert(states != null);
 
@@ -71,54 +114,26 @@ namespace Automata.Logic
 
         public bool AcceptString(string input)
         {
-            IEnumerable<State> currentStates = EpsilonClosure(new State[] { initialState });
-            foreach (Symbol symbol in input)
-                currentStates = NextStates(currentStates, symbol);
-
-            IEnumerable<State> finalStates = EpsilonClosure(currentStates);
-            return HasAcceptingState(finalStates);
-        }
-
-        private IEnumerable<State> NextStates(IEnumerable<State> states, char character)
-        {
-            if (!IsValid(character))
-                throw new ArgumentException("Symbol is not in the alphabet.");
-
-            foreach (State state in states)
+            var initial = StateFromIndex(initialIndex);
+            var currents = table.GetInitialEpsilonClosure(initial);
+            foreach (char character in input)
             {
-                IEnumerable<State> nextStates = state.GetNextStates(character);
-                foreach (State nextState in EpsilonClosure(nextStates))
-                    yield return nextState;
+                if (!alphabet.Contains(character))
+                    throw new ArgumentException("Symbol is not in the alphabet.");
+                currents = table.GetNextStates(currents, character);
             }
+
+            return HasAcceptingState(currents);
         }
 
-        private IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
+        private bool HasAcceptingState(IEnumerable<State> currents)
         {
-            Queue<State> toBeConsideredStates = new Queue<State>(states);
-            List<State> closure = new List<State>(toBeConsideredStates.Count);
-
-            while (toBeConsideredStates.Count != 0)
+            foreach (int index in acceptingIndexes)
             {
-                State state = toBeConsideredStates.Dequeue();
-                closure.Add(state);
-                yield return state;
-
-                IEnumerable<State> epsilonStates = state.GetNextStates(Alphabet.Epsilon);
-                foreach (State epsilonState in epsilonStates)
-                {
-                    bool stateIsAlreadyInClosure = closure.Contains(epsilonState),
-                         stateIsBeingConsidered = toBeConsideredStates.Contains(epsilonState);
-                    if (!stateIsAlreadyInClosure && !stateIsBeingConsidered)
-                        toBeConsideredStates.Enqueue(epsilonState);
-                }
-            }
-        }
-
-        private bool HasAcceptingState(IEnumerable<State> states)
-        {
-            foreach (State state in states)
-                if (state.IsAccepting)
+                State accepting = this.states[index];
+                if (currents.Contains(accepting))
                     return true;
+            }
 
             return false;
         }

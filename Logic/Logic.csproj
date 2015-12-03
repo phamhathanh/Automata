@@ -40,13 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="FiniteAutomata\Alphabet.cs" />
     <Compile Include="FiniteAutomata\DFAConverter.cs" />
     <Compile Include="FiniteAutomata\FiniteAutomaton.cs" />
     <Compile Include="FiniteAutomata\State.cs" />
     <Compile Include="FiniteAutomata\Transition.cs" />
-    <Compile Include="FiniteAutomata\TransitionInfo.cs" />
+    <Compile Include="FiniteAutomata\TransitionTable.cs" />
     <Compile Include="Grammar\ContextFreeGrammar.cs" />
     <Compile Include="Grammar\GrammarAlphabet.cs" />
     <Compile Include="Grammar\GrammarSymbol.cs" />

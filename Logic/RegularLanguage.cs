@@ -13,7 +13,7 @@ namespace Automata.Logic
         public static readonly RegularLanguage Empty = new RegularLanguage("");
         private const char emptyCharacter = ' ';
 
-        private readonly Alphabet alphabet;
+        private readonly char[] alphabet;
 
         public RegularLanguage(string expression)
         {
@@ -22,19 +22,20 @@ namespace Automata.Logic
             if (!expressionIsValid)
                 throw new ArgumentException("Expression is invalid.");
 
-            var symbols = new List<Symbol>();
-            foreach (char c in expression)
+            var characters = new List<char>();
+            foreach (char symbol in expression)
             {
-                bool isSymbol = !IsOperator(c) && c != '(' && c != ')';
-                if (!isSymbol)
+                bool isCharacter = !IsOperator(symbol) && symbol != '(' && symbol != ')';
+                if (!isCharacter)
                 {
-                    if (!char.IsLetterOrDigit(c))
+                    if (!char.IsLetterOrDigit(symbol))
                         throw new ArgumentException("Expression must contains only letters, digits and operators.");
 
-                    symbols.Add(c);
+                    if (!characters.Contains(symbol))
+                        characters.Add(symbol);
                 }
             }
-            alphabet = new Alphabet(symbols.ToArray());
+            this.alphabet = characters.ToArray();
 
             // TODO: check expression meaning validity
             //       build a new Automaton class
@@ -57,16 +58,16 @@ namespace Automata.Logic
             StringBuilder output = new StringBuilder();
 
             bool canConcat = false;
-            foreach (char character in expression)
+            foreach (char symbol in expression)
             {
-                bool canBeConcatened = character == '(' || char.IsLetterOrDigit(character);
+                bool canBeConcatened = symbol == '(' || char.IsLetterOrDigit(symbol);
 
                 if (canConcat && canBeConcatened)
                     output.Append('.');
 
-                output.Append(character);
+                output.Append(symbol);
 
-                canConcat = character != '|' && character != '(';
+                canConcat = symbol != '|' && symbol != '(';
             }
 
             return output.ToString();
@@ -80,16 +81,16 @@ namespace Automata.Logic
             StringBuilder output = new StringBuilder();
 
             bool mayImplyFollowingEmptyChar = true;
-            foreach (char character in expression)
+            foreach (char symbol in expression)
             {
-                bool mayImplyPrecedingEmptyChar = character == '|' || character == ')';
+                bool mayImplyPrecedingEmptyChar = symbol == '|' || symbol == ')';
 
                 if (mayImplyFollowingEmptyChar && mayImplyPrecedingEmptyChar)
                     output.Append(emptyCharacter);
 
-                output.Append(character);
+                output.Append(symbol);
 
-                mayImplyFollowingEmptyChar = character == '|' || character == '(';
+                mayImplyFollowingEmptyChar = symbol == '|' || symbol == '(';
             }
 
             return output.ToString();
@@ -102,22 +103,22 @@ namespace Automata.Logic
             var operatorStack = new Stack<char>();
             var output = new StringBuilder();
 
-            foreach (char character in infixNotation)
+            foreach (char symbol in infixNotation)
             {
-                if (IsOperator(character))
+                if (IsOperator(symbol))
                 {
-                    if (character == '*')
-                        output.Append(character);
+                    if (symbol == '*')
+                        output.Append(symbol);
                     else
                     {
-                        while (operatorStack.Count > 0 && OperatorHasMorePriority(operatorStack.Peek(), character))
+                        while (operatorStack.Count > 0 && OperatorHasMorePriority(operatorStack.Peek(), symbol))
                             output.Append(operatorStack.Pop());
-                        operatorStack.Push(character);
+                        operatorStack.Push(symbol);
                     }
                 }
-                else if (character == '(')
-                    operatorStack.Push(character);
-                else if (character == ')')
+                else if (symbol == '(')
+                    operatorStack.Push(symbol);
+                else if (symbol == ')')
                 {
                     char topOperator = operatorStack.Pop();
                     while (topOperator != '(')
@@ -127,21 +128,21 @@ namespace Automata.Logic
                     }
                 }
                 else
-                    output.Append(character);
+                    output.Append(symbol);
             }
 
             while (operatorStack.Count > 0)
             {
-                char character = operatorStack.Pop();
-                output.Append(character);
+                char symbol = operatorStack.Pop();
+                output.Append(symbol);
             }
 
             return output.ToString();
         }
 
-        private bool IsOperator(char character)
+        private bool IsOperator(char symbol)
         {
-            return character == '*' || character == '|' || character == '.';
+            return symbol == '*' || symbol == '|' || symbol == '.';
         }
 
         private bool OperatorHasMorePriority(char operator1, char operator2)
@@ -161,12 +162,12 @@ namespace Automata.Logic
             Debug.Assert(postfixNotation.Length > 0);
 
             var stack = new Stack<FiniteAutomaton>();
-            foreach (char character in postfixNotation)
+            foreach (char symbol in postfixNotation)
             {
                 FiniteAutomaton result;
-                if (IsOperator(character))
+                if (IsOperator(symbol))
                 {
-                    if (character == '*')
+                    if (symbol == '*')
                     {
                         if (stack.Count < 1)
                             throw new ArgumentException("Not enough values in expression.");
@@ -174,7 +175,7 @@ namespace Automata.Logic
                         var operand = stack.Pop();
                         result = Star(operand);
                     }
-                    else if (character == '|')
+                    else if (symbol == '|')
                     {
                         if (stack.Count < 2)
                             throw new ArgumentException("Not enough values in expression.");
@@ -194,7 +195,7 @@ namespace Automata.Logic
                     }
                 }
                 else
-                    result = FromSymbol(character);
+                    result = FromSymbol(symbol);
 
                 stack.Push(result);
             }
@@ -207,19 +208,19 @@ namespace Automata.Logic
             return stack.Peek();
         }
 
-        private FiniteAutomaton FromSymbol(char c)
+        private FiniteAutomaton FromSymbol(char character)
         {
             int statesCount = 2,
                 initialStateIndex = 0;
             var finalStateIndexes = new[] { 1 };
 
-            TransitionInfo[] transitions;
-            if (c == ' ')
-                transitions = new TransitionInfo[] { new TransitionInfo(0, Alphabet.Epsilon, 1) };
+            Transition[] transitions;
+            if (character == ' ')
+                transitions = new Transition[] { new Transition(0, Alphabet.Epsilon, 1) };
             else
             {
-                Debug.Assert(alphabet.Contains(c));
-                transitions = new TransitionInfo[] { new TransitionInfo(0, c, 1) };
+                Debug.Assert(alphabet.Contains(character));
+                transitions = new Transition[] { new Transition(0, character, 1) };
             }
 
             return new FiniteAutomaton(statesCount, alphabet, transitions, initialStateIndex, finalStateIndexes);

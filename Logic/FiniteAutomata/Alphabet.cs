@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Automata.Logic
 {
-    class Alphabet
+    class Alphabet : IEnumerable<char>
     {
         public static readonly char Epsilon = 'ε';
 
@@ -14,12 +14,8 @@ namespace Automata.Logic
 
         public Alphabet(char[] characters)
         {
-            if (characters.Contains(Epsilon))
-                throw new ArgumentException("Alphabet cannot contain the epsilon character.");
-
-            bool hasDuplicates = characters.Distinct().Count() < characters.Length;
-            if (hasDuplicates)
-                throw new ArgumentException("Alphabet cannot contain duplicates.");
+            Debug.Assert(!characters.Contains(Epsilon));
+            Debug.Assert(characters.Distinct().Count() == characters.Length);
 
             this.characters = (char[])characters.Clone();
         }
@@ -27,6 +23,16 @@ namespace Automata.Logic
         public bool Contains(char character)
         {
             return characters.Contains(character);
+        }
+
+        public IEnumerator<char> GetEnumerator()
+        {
+            return ((IEnumerable<char>)characters).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

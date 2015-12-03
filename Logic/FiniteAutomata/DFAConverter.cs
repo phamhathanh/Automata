@@ -18,7 +18,7 @@ namespace Automata.Logic
 
             stateConversionGraph = new Dictionary<int, IEnumerable<State>>();
             dfaUnvisitedStateIndexes = new Queue<int>();
-            List<TransitionInfo> dfaTransitionInfos = new List<TransitionInfo>();
+            List<Transition> dfaTransitionInfos = new List<Transition>();
             List<int> dfaAcceptingStateIndexes = new List<int>();
 
             // Initialize graph with δ*(q0, epsilon)
@@ -52,11 +52,11 @@ namespace Automata.Logic
                             if (IsDFAStateAccepting(nextState))
                                 dfaAcceptingStateIndexes.Add(nextState);
 
-                            dfaTransitionInfos.Add(new TransitionInfo(dfaStateIndex, sym, stateConversionGraph.Count - 1));
+                            dfaTransitionInfos.Add(new Transition(dfaStateIndex, sym, stateConversionGraph.Count - 1));
                         }
                         else
                         {
-                            dfaTransitionInfos.Add(new TransitionInfo(dfaStateIndex, sym, DFAState));
+                            dfaTransitionInfos.Add(new Transition(dfaStateIndex, sym, DFAState));
                         }
                     }
                 }
@@ -93,44 +93,6 @@ namespace Automata.Logic
                 }
             }
             return false;
-        }
-    }
-
-    partial class FiniteAutomaton
-    {
-        /*
-         * This part is temporarily used for DFAConverter class
-         */
-        public State GetInitialState()
-        {
-            return initialState;
-        }
-
-        public Alphabet GetAlphabet()
-        {
-            return this.alphabet;
-        }
-        
-        public IEnumerable<State> PEpsilonClosure(IEnumerable<State> states)
-        {
-            return EpsilonClosure(states);
-        }
-        public IEnumerable<State> Move(IEnumerable<State> states, char symbol)
-        {
-            // return Extended transition δ*(T, a) for both NFA & DFA
-            IEnumerable<State> closure = EpsilonClosure(states);
-            List<State> raw_results = new List<State>();
-            foreach (State state in closure)
-            {
-                IEnumerable<State> aStates = state.GetNextStates(symbol);
-                foreach (State aState in aStates)
-                {
-                    if (!raw_results.Contains(aState))
-                        raw_results.Add(aState);
-                }
-            }
-
-            return EpsilonClosure(raw_results);
         }
     }
 }

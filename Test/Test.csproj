@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Automata\Automata.csproj">
-      <Project>{47a6e650-ff02-4aab-bce9-c682a506bbcf}</Project>
-      <Name>Automata</Name>
+    <ProjectReference Include="..\Logic\Logic.csproj">
+      <Project>{f114121a-43e0-4d31-b823-3189d71c35d8}</Project>
+      <Name>Logic</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
