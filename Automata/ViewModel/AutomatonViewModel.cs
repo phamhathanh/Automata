@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using Automata;
+using Automata.Logic;
 
 namespace Automata
 {
@@ -257,13 +257,13 @@ namespace Automata
                     symbols.Add(new Symbol(s.Symbol));
             Alphabet alphabet = new Alphabet(symbols.ToArray());
 
-            List<Transition> transitions = new List<Transition>(Transitions.Count);
+            List<TransitionInfo> transitions = new List<TransitionInfo>(Transitions.Count);
             foreach (var transition in Transitions)
             {
                 int currentStateIndex = IndexFromID(transition.CurrentStateID),
                     nextStateIndex = IndexFromID(transition.NextStateID);
                 Symbol symbol = transition.Symbol;
-                transitions.Add(new Transition(currentStateIndex, symbol, nextStateIndex));
+                transitions.Add(new TransitionInfo(currentStateIndex, symbol, nextStateIndex));
             }
 
             List<int> acceptingStateIndexes = new List<int>();

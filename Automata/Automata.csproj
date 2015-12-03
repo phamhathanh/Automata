@@ -7,8 +7,8 @@
     <ProjectGuid>{47A6E650-FF02-4AAB-BCE9-C682A506BBCF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Automata</RootNamespace>
-    <AssemblyName>Automata</AssemblyName>
+    <RootNamespace>Automata.UI</RootNamespace>
+    <AssemblyName>Automata.UI</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -70,33 +70,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Logic\Grammar\ContextFreeGrammar.cs" />
-    <Compile Include="Logic\Grammar\GrammarAlphabet.cs" />
-    <Compile Include="Logic\Grammar\GrammarSymbol.cs" />
-    <Compile Include="Logic\Grammar\Production.cs" />
-    <Compile Include="Logic\Grammar\ProductionInfo.cs" />
-    <Compile Include="Logic\Grammar\Sentence.cs" />
-    <Compile Include="Logic\Patterson\Patterson.cs" />
-    <Compile Include="Logic\RegularLanguage.cs" />
     <Compile Include="ViewModel\SymbolViewModel.cs" />
     <Compile Include="ViewModel\AutomatonViewModel.cs" />
-    <Compile Include="Logic\FiniteAutomata\DFAConverter.cs" />
-    <Compile Include="Logic\FiniteAutomata\State.cs" />
     <Compile Include="ViewModel\StateViewModel.cs" />
-    <Compile Include="Logic\FiniteAutomata\Symbol.cs" />
-    <Compile Include="Logic\FiniteAutomata\Transition.cs" />
     <Compile Include="ViewModel\TransitionViewModel.cs" />
     <Compile Include="View\Program.cs" />
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Logic\FiniteAutomata\Alphabet.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Logic\FiniteAutomata\FiniteAutomaton.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

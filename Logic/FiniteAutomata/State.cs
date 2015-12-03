@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Automata
+namespace Automata.Logic
 {
     class State
     {
         private bool isWrappedUp, isAccepting;
-        private Dictionary<Symbol, List<State>> transitions = new Dictionary<Symbol, List<State>>();
+        private Dictionary<char, List<State>> transitions = new Dictionary<char, List<State>>();
 
         public bool IsAccepting
         {
@@ -28,17 +28,17 @@ namespace Automata
             }
         }
 
-        public void AddTransition(Symbol symbol, State next)
+        public void AddTransition(char character, State next)
         {
             if (isWrappedUp)
                 throw new InvalidOperationException("Object is wrapped up and cannot be changed.");
 
             List<State> transition;
-            bool transitionIsDefined = transitions.TryGetValue(symbol, out transition);
+            bool transitionIsDefined = transitions.TryGetValue(character, out transition);
             if (!transitionIsDefined)
             {
                 transition = new List<State>();
-                transitions.Add(symbol, transition);
+                transitions.Add(character, transition);
             }
             else if (transition.Contains(next))
                 throw new InvalidOperationException("Transition is already defined.");
@@ -51,10 +51,10 @@ namespace Automata
             isWrappedUp = true;
         }
 
-        public IEnumerable<State> GetNextStates(Symbol symbol)
+        public IEnumerable<State> GetNextStates(char character)
         {
             List<State> transition;
-            bool transitionIsDefined = transitions.TryGetValue(symbol, out transition);
+            bool transitionIsDefined = transitions.TryGetValue(character, out transition);
             IEnumerable<State> states;
             if (transitionIsDefined)
                 states = transition;

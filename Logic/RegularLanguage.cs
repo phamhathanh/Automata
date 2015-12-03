@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 
-namespace Automata
+namespace Automata.Logic
 {
     public class RegularLanguage
     {
@@ -213,13 +213,13 @@ namespace Automata
                 initialStateIndex = 0;
             var finalStateIndexes = new[] { 1 };
 
-            Transition[] transitions;
+            TransitionInfo[] transitions;
             if (c == ' ')
-                transitions = new Transition[] { new Transition(0, Alphabet.Epsilon, 1) };
+                transitions = new TransitionInfo[] { new TransitionInfo(0, Alphabet.Epsilon, 1) };
             else
             {
                 Debug.Assert(alphabet.Contains(c));
-                transitions = new Transition[] { new Transition(0, c, 1) };
+                transitions = new TransitionInfo[] { new TransitionInfo(0, c, 1) };
             }
 
             return new FiniteAutomaton(statesCount, alphabet, transitions, initialStateIndex, finalStateIndexes);

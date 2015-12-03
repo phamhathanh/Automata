@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Automata", "Automata\Automa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{1F337721-FB51-4E63-8FB6-DDEAFEDD9709}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic", "Logic\Logic.csproj", "{F114121A-43E0-4D31-B823-3189D71C35D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1F337721-FB51-4E63-8FB6-DDEAFEDD9709}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F337721-FB51-4E63-8FB6-DDEAFEDD9709}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F337721-FB51-4E63-8FB6-DDEAFEDD9709}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F114121A-43E0-4D31-B823-3189D71C35D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F114121A-43E0-4D31-B823-3189D71C35D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F114121A-43E0-4D31-B823-3189D71C35D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F114121A-43E0-4D31-B823-3189D71C35D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

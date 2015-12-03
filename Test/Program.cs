@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Automata.Logic;
 
-namespace Automata
+namespace Automata.Test
 {
     class Program
     {

@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1F337721-FB51-4E63-8FB6-DDEAFEDD9709}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{F114121A-43E0-4D31-B823-3189D71C35D8}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Automata.Test</RootNamespace>
-    <AssemblyName>Automata.Test</AssemblyName>
+    <RootNamespace>Automata.Logic</RootNamespace>
+    <AssemblyName>Automata.Logic</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -43,17 +40,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="FiniteAutomata\Alphabet.cs" />
+    <Compile Include="FiniteAutomata\DFAConverter.cs" />
+    <Compile Include="FiniteAutomata\FiniteAutomaton.cs" />
+    <Compile Include="FiniteAutomata\State.cs" />
+    <Compile Include="FiniteAutomata\Transition.cs" />
+    <Compile Include="FiniteAutomata\TransitionInfo.cs" />
+    <Compile Include="Grammar\ContextFreeGrammar.cs" />
+    <Compile Include="Grammar\GrammarAlphabet.cs" />
+    <Compile Include="Grammar\GrammarSymbol.cs" />
+    <Compile Include="Grammar\Production.cs" />
+    <Compile Include="Grammar\ProductionInfo.cs" />
+    <Compile Include="Grammar\Sentence.cs" />
+    <Compile Include="Patterson\Patterson.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Automata\Automata.csproj">
-      <Project>{47a6e650-ff02-4aab-bce9-c682a506bbcf}</Project>
-      <Name>Automata</Name>
-    </ProjectReference>
+    <Compile Include="RegularLanguage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

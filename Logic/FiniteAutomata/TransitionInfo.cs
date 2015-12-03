@@ -1,9 +1,9 @@
-﻿namespace Automata
+﻿namespace Automata.Logic
 {
-    class Transition
+    public class TransitionInfo
     {
         private readonly int currentStateIndex, nextStateIndex;
-        private readonly Symbol symbol;
+        private readonly char character;
 
         public int CurrentStateIndex
         {
@@ -21,42 +21,42 @@
             }
         }
 
-        public Symbol Symbol
+        public char Symbol
         {
             get
             {
-                return symbol;
+                return character;
             }
         }
 
-        public Transition(int currentStateIndex, Symbol symbol, int nextStateIndex)
+        public TransitionInfo(int currentStateIndex, char character, int nextStateIndex)
         {
             this.currentStateIndex = currentStateIndex;
-            this.symbol = symbol;
+            this.character = character;
             this.nextStateIndex = nextStateIndex;
         }
 
-        public static bool operator ==(Transition transition1, Transition transition2)
+        public static bool operator ==(TransitionInfo transition1, TransitionInfo transition2)
         {
             return transition1.currentStateIndex == transition2.currentStateIndex
                 && transition1.nextStateIndex == transition2.nextStateIndex
-                && transition1.symbol == transition2.symbol;
+                && transition1.character == transition2.character;
         }
 
-        public static bool operator !=(Transition transition1, Transition transition2)
+        public static bool operator !=(TransitionInfo transition1, TransitionInfo transition2)
         {
             return !(transition1 == transition2);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is Transition && this == (Transition)obj;
+            return obj is TransitionInfo && this == (TransitionInfo)obj;
         }
 
         public override int GetHashCode()
         {
             return 7 * currentStateIndex.GetHashCode()
-                + 17 * symbol.GetHashCode()
+                + 17 * character.GetHashCode()
                 + 37 * nextStateIndex.GetHashCode();
         }
     }

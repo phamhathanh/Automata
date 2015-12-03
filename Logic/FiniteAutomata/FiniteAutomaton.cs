@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Automata
+namespace Automata.Logic
 {
     partial class FiniteAutomaton
     {
@@ -12,7 +12,7 @@ namespace Automata
         private readonly State[] states;
         private readonly State initialState;
 
-        public FiniteAutomaton(int statesCount, Alphabet alphabet, Transition[] transitions,
+        public FiniteAutomaton(int statesCount, Alphabet alphabet, TransitionInfo[] transitions,
                                                     int initialStateIndex, int[] acceptingStateIndexes)
         {
             this.alphabet = alphabet;
@@ -39,24 +39,24 @@ namespace Automata
                 state.WrapUp();
         }
 
-        private void AddTransition(Transition info)
+        private void AddTransition(TransitionInfo info)
         {
             if (!IsValid(info.Symbol))
-                throw new ArgumentException("Symbol is not in the alphabet.");
+                throw new ArgumentException("Character is invalid.");
 
             State currentState = GetState(info.CurrentStateIndex),
                     nextState = GetState(info.NextStateIndex);
-            Symbol symbol = info.Symbol;
+            char symbol = info.Symbol;
 
             currentState.AddTransition(symbol, nextState);
         }
         
-        private bool IsValid(Symbol symbol)
+        private bool IsValid(char character)
         {
-            if (symbol.Equals(Alphabet.Epsilon))
+            if (character.Equals(Alphabet.Epsilon))
                 return true;
 
-            return alphabet.Contains(symbol);
+            return alphabet.Contains(character);
         }
 
         private State GetState(int stateIndex)
@@ -79,14 +79,14 @@ namespace Automata
             return HasAcceptingState(finalStates);
         }
 
-        private IEnumerable<State> NextStates(IEnumerable<State> states, Symbol symbol)
+        private IEnumerable<State> NextStates(IEnumerable<State> states, char character)
         {
-            if (!IsValid(symbol))
+            if (!IsValid(character))
                 throw new ArgumentException("Symbol is not in the alphabet.");
 
             foreach (State state in states)
             {
-                IEnumerable<State> nextStates = state.GetNextStates(symbol);
+                IEnumerable<State> nextStates = state.GetNextStates(character);
                 foreach (State nextState in EpsilonClosure(nextStates))
                     yield return nextState;
             }

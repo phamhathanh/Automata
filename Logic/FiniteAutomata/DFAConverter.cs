@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Automata
+namespace Automata.Logic
 {
     class DFAConverter
     {
@@ -18,7 +18,7 @@ namespace Automata
 
             stateConversionGraph = new Dictionary<int, IEnumerable<State>>();
             dfaUnvisitedStateIndexes = new Queue<int>();
-            List<Transition> dfaTransitionInfos = new List<Transition>();
+            List<TransitionInfo> dfaTransitionInfos = new List<TransitionInfo>();
             List<int> dfaAcceptingStateIndexes = new List<int>();
 
             // Initialize graph with δ*(q0, epsilon)
@@ -52,11 +52,11 @@ namespace Automata
                             if (IsDFAStateAccepting(nextState))
                                 dfaAcceptingStateIndexes.Add(nextState);
 
-                            dfaTransitionInfos.Add(new Transition(dfaStateIndex, sym, stateConversionGraph.Count - 1));
+                            dfaTransitionInfos.Add(new TransitionInfo(dfaStateIndex, sym, stateConversionGraph.Count - 1));
                         }
                         else
                         {
-                            dfaTransitionInfos.Add(new Transition(dfaStateIndex, sym, DFAState));
+                            dfaTransitionInfos.Add(new TransitionInfo(dfaStateIndex, sym, DFAState));
                         }
                     }
                 }
@@ -115,7 +115,7 @@ namespace Automata
         {
             return EpsilonClosure(states);
         }
-        public IEnumerable<State> Move(IEnumerable<State> states, Symbol symbol)
+        public IEnumerable<State> Move(IEnumerable<State> states, char symbol)
         {
             // return Extended transition δ*(T, a) for both NFA & DFA
             IEnumerable<State> closure = EpsilonClosure(states);
