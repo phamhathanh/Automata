@@ -16,6 +16,7 @@ namespace Automata.Test
             //RegexTest();
             //PattersonTest();
             //CYKTest();
+            NFAToDFA();
 
             Console.WriteLine();
             Console.WriteLine("All tests are passed.");
@@ -78,6 +79,27 @@ namespace Automata.Test
                      sentence2 = new[] { "0", "0", "0", "1", "1", "1" };
             Debug.Assert(!normalForm.HasSentence(sentence1));
             Debug.Assert(normalForm.HasSentence(sentence2));
+        }
+
+        private static void NFAToDFA()
+        {
+            var alphabet = new[] { '0', '1' };
+            int statesCount = 4,
+                initialIndex = 0;
+            int[] acceptingIndexes = new[] { 2, 3 };
+            var transitions = new[] { new Transition(0, 'ε', 2),
+                                      new Transition(0, '0', 1),
+                                      new Transition(1, '1', 1),
+                                      new Transition(1, '1', 3),
+                                      new Transition(2, 'ε', 1),
+                                      new Transition(2, '0', 3),
+                                      new Transition(3, '0', 2) };
+
+            var nfa = new FiniteAutomaton(statesCount, alphabet, transitions, initialIndex, acceptingIndexes);
+            var dfa = nfa.GetEquivalentDFA();
+
+            statesCount = dfa.StatesCount;
+            Debug.Assert(statesCount == 5);
         }
     }
 }

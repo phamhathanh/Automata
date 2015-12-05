@@ -6,12 +6,11 @@ using System.Linq;
 
 namespace Automata.Logic
 {
-    partial class FiniteAutomaton
+    public class FiniteAutomaton
     {
         private readonly Alphabet alphabet;
-        private readonly State[] states;
-        private readonly int initialIndex;
-        private readonly int[] acceptingIndexes;
+        private readonly State[] states, acceptings;
+        private readonly State initial;
         private readonly TransitionTable table;
 
         public IEnumerable<char> Characters
@@ -33,19 +32,65 @@ namespace Automata.Logic
         {
             get
             {
-                return initialIndex;
+                return IndexOfState(initial);
             }
         }
         public IEnumerable<int> AcceptingIndexes
         {
             get
             {
-                foreach (int index in acceptingIndexes)
-                    yield return index;
+                foreach (var state in acceptings)
+                    yield return IndexOfState(state);
+            }
+        }
+        public IEnumerable<Transition> Transitions
+        {
+            get
+            {
+                var transitions = table.GetAllTransitions();
+                foreach (var transition in transitions)
+                {
+                    char character = transition.Item2;
+                    State current = transition.Item1,
+                          next = transition.Item3;
+                    int currentIndex = IndexOfState(current),
+                        nextIndex = IndexOfState(next);
+
+                    yield return new Transition(currentIndex, character, nextIndex);
+                }
             }
         }
 
-        //TODO: internal exposure?
+        internal IEnumerable<State> States
+        {
+            get
+            {
+                foreach (var state in states)
+                    yield return state;
+            }
+        }
+        internal IEnumerable<State> AcceptingStates
+        {
+            get
+            {
+                foreach (var state in acceptings)
+                    yield return state;
+            }
+        }
+        internal State InitialState
+        {
+            get
+            {
+                return initial;
+            }
+        }
+        internal TransitionTable Table
+        {
+            get
+            {
+                return table;
+            }
+        }
 
         public FiniteAutomaton(int statesCount, char[] alphabet, Transition[] transitions,
                                                     int initialIndex, int[] acceptingIndexes)
@@ -59,11 +104,12 @@ namespace Automata.Logic
 
             if (ArrayHasDuplicates(acceptingIndexes))
                 throw new ArgumentException("Accepting indexes cannot contain duplicates.");
-            this.acceptingIndexes = (int[])acceptingIndexes.Clone();
-
-            if (initialIndex < 0 || initialIndex >= states.Length)
-                throw new ArgumentOutOfRangeException("Initial state index is out of range.");
-            this.initialIndex = initialIndex;
+            int acceptingsCount = acceptingIndexes.Length;
+            this.acceptings = new State[acceptingsCount];
+            for (int i = 0; i < acceptingsCount; i++)
+                this.acceptings[i] = StateFromIndex(acceptingIndexes[i]);
+            
+            this.initial = StateFromIndex(initialIndex);
 
             if (ArrayHasDuplicates(transitions))
                 throw new ArgumentException("Transitions cannot contain duplicates.");
@@ -71,6 +117,39 @@ namespace Automata.Logic
 
             foreach (var info in transitions)
                 AddTransition(info);
+            this.table.WrapUp();
+        }
+
+        internal FiniteAutomaton(IEnumerable<State> states, char[] alphabet, State initial, 
+                                IEnumerable<State> acceptings, TransitionTable table)
+        {
+            this.states = states.ToArray();
+            
+            ValidateAlphabet(alphabet);
+            this.alphabet = new Alphabet(alphabet);
+
+            if (!states.Contains(initial))
+                throw new ArgumentException("Invalid initial state.");
+            this.initial = initial;
+
+            var acceptingList = new List<State>();
+            foreach (var state in acceptings)
+            {
+                if (!states.Contains(state))
+                    throw new ArgumentException("Invalid accepting state.");
+                acceptingList.Add(state);
+            }
+            this.acceptings = acceptingList.ToArray();
+
+            var tableStates = table.GetAllStates();
+            foreach (var state in tableStates)
+                if (!states.Contains(state))
+                    throw new ArgumentException("Invalid table.");
+            var tableChars = table.GetAllCharacters();
+            foreach (var character in tableChars)
+                ValidateChar(character);
+            this.table = table;
+            this.table.WrapUp();
         }
 
         private void ValidateAlphabet(char[] alphabet)
@@ -89,9 +168,7 @@ namespace Automata.Logic
         private void AddTransition(Transition transition)
         {
             char character = transition.Character;
-            bool isValid = character == Alphabet.Epsilon || alphabet.Contains(character);
-            if (isValid)
-                throw new ArgumentException("Character is invalid.");
+            ValidateChar(character);
 
             int currentIndex = transition.CurrentStateIndex,
                 nextIndex = transition.NextStateIndex;
@@ -100,6 +177,15 @@ namespace Automata.Logic
 
             Debug.Assert(table != null);
             table.Add(current, character, next);
+        }
+
+        private void ValidateChar(char character)
+        {
+            Debug.Assert(alphabet != null);
+
+            bool isValid = character == Alphabet.Epsilon || alphabet.Contains(character);
+            if (!isValid)
+                throw new ArgumentException("Character is invalid.");
         }
 
         private State StateFromIndex(int stateIndex)
@@ -112,9 +198,17 @@ namespace Automata.Logic
             return states[stateIndex];
         }
 
+        private int IndexOfState(State state)
+        {
+            Debug.Assert(states != null);
+            int index = Array.IndexOf(states, state);
+            Debug.Assert(index > -1);
+
+            return index;
+        }
+
         public bool AcceptString(string input)
         {
-            var initial = StateFromIndex(initialIndex);
             var currents = table.GetInitialEpsilonClosure(initial);
             foreach (char character in input)
             {
@@ -128,14 +222,94 @@ namespace Automata.Logic
 
         private bool HasAcceptingState(IEnumerable<State> currents)
         {
-            foreach (int index in acceptingIndexes)
+            foreach (var state in currents)
             {
-                State accepting = this.states[index];
-                if (currents.Contains(accepting))
+                if  (acceptings.Contains(state))
                     return true;
             }
 
             return false;
+        }
+
+        public FiniteAutomaton GetEquivalentDFA()
+        {
+            // powerset construction
+
+            List<State> dfaStates = new List<State>(),
+                    dfaAcceptings = new List<State>();
+
+            var nfaStatesComparer = new OrderIndependentStatesComparer();
+            var nfaToDFA = new Dictionary<IEnumerable<State>, State>(nfaStatesComparer);
+            var dfaToNFA = new Dictionary<State, IEnumerable<State>>();
+
+            State dfaInitial = new State();
+            var nfaInitialClosure = table.GetInitialEpsilonClosure(initial);
+            if (HasAcceptingState(nfaInitialClosure))
+                dfaAcceptings.Add(dfaInitial);
+            dfaStates.Add(dfaInitial);
+            nfaToDFA.Add(nfaInitialClosure, dfaInitial);
+            dfaToNFA.Add(dfaInitial, nfaInitialClosure);
+
+            var dfaTable = new TransitionTable();
+            var considerations = new Queue<State>(dfaStates);
+            while (considerations.Count > 0)
+            {
+                var dfaState = considerations.Dequeue();
+                IEnumerable<State> correspondingNFAStates;      // It is OK for this to be empty.
+                bool success = dfaToNFA.TryGetValue(dfaState, out correspondingNFAStates);
+                Debug.Assert(success);
+
+                foreach (char character in alphabet)
+                {
+                    var nextNFAStates = table.GetNextStates(correspondingNFAStates, character);
+                    State nextDFAState;
+                    success = nfaToDFA.TryGetValue(nextNFAStates, out nextDFAState);
+                    if (!success)
+                    {
+                        nextDFAState = new State();
+                        if (HasAcceptingState(nextNFAStates))
+                            dfaAcceptings.Add(nextDFAState);
+                        dfaStates.Add(nextDFAState);
+                        nfaToDFA.Add(nextNFAStates, nextDFAState);
+                        dfaToNFA.Add(nextDFAState, nextNFAStates);
+                        considerations.Enqueue(nextDFAState);
+                    }
+                    else
+                        Debug.Assert(dfaStates.Contains(nextDFAState));
+
+                    dfaTable.Add(dfaState, character, nextDFAState);
+                }
+            }
+
+            return new FiniteAutomaton(dfaStates, alphabet.ToArray(), dfaInitial, dfaAcceptings, dfaTable);
+        }
+
+        private class OrderIndependentStatesComparer : EqualityComparer<IEnumerable<State>>
+        {
+            public override bool Equals(IEnumerable<State> states1, IEnumerable<State> states2)
+            {
+                return GetHashCode(states1) == GetHashCode(states2);
+            }
+
+            public override int GetHashCode(IEnumerable<State> states)
+            {
+                // hashcode is order-independent
+
+                List<int> hashes = new List<int>();
+                foreach (var state in states)
+                    hashes.Add(state.GetHashCode());
+                hashes.Sort();
+
+                int output = 0;
+                foreach (int hash in hashes)
+                    unchecked
+                    {
+                        output *= 251;
+                        output += hash;
+                    }
+
+                return output;
+            }
         }
     }
 }
