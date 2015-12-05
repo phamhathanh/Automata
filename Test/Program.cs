@@ -98,8 +98,10 @@ namespace Automata.Test
             var nfa = new FiniteAutomaton(statesCount, alphabet, transitions, initialIndex, acceptingIndexes);
             var dfa = nfa.GetEquivalentDFA();
 
-            statesCount = dfa.StatesCount;
-            Debug.Assert(statesCount == 5);
+            int dfaStatesCount = dfa.StatesCount;
+            int dfaAcceptingsCount = dfa.AcceptingIndexes.Count();
+            Debug.Assert(dfaStatesCount == 5);
+            Debug.Assert(dfaAcceptingsCount == 4);
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Automata
     class TransitionViewModel : INotifyPropertyChanged
     {
         private string currentStateID, nextStateID;
-        private char symbol;
+        private char character;
 
         public string CurrentStateID
         {
@@ -22,18 +22,18 @@ namespace Automata
                 }
             }
         }
-        public char Symbol
+        public char Character
         {
             get
             {
-                return symbol;
+                return character;
             }
             set
             {
-                symbol = value;
+                character = value;
                 if (PropertyChanged != null)
                 {
-                    PropertyChanged(this, new PropertyChangedEventArgs("Symbol"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Character"));
                 }
             }
         }
@@ -55,17 +55,17 @@ namespace Automata
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public TransitionViewModel(string currentStateID, char symbol, string nextStateID)
+        public TransitionViewModel(string currentStateID, char character, string nextStateID)
         {
             this.currentStateID = currentStateID;
-            this.symbol = symbol;
+            this.character = character;
             this.nextStateID = nextStateID;
         }
 
         public static bool operator==(TransitionViewModel transition1, TransitionViewModel transition2)
         {
             return transition1.currentStateID == transition2.currentStateID
-                && transition1.symbol == transition2.symbol
+                && transition1.character == transition2.character
                 && transition1.nextStateID == transition2.nextStateID;
         }
 
@@ -82,7 +82,7 @@ namespace Automata
         public override int GetHashCode()
         {
             return 7 * currentStateID.GetHashCode()
-                + 17 * symbol.GetHashCode()
+                + 17 * character.GetHashCode()
                 + 37 * nextStateID.GetHashCode();
         }
     }

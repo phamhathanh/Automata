@@ -213,7 +213,7 @@ namespace Automata.Logic
             foreach (char character in input)
             {
                 if (!alphabet.Contains(character))
-                    throw new ArgumentException("Symbol is not in the alphabet.");
+                    throw new ArgumentException("Character is not in the alphabet.");
                 currents = table.GetNextStates(currents, character);
             }
 
