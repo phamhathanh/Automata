@@ -101,8 +101,8 @@ namespace Automata
                         CheckSentence();
                         break;
                     case 'x':
-                        Console.WriteLine("The program will now exit.");
-                        Console.WriteLine("Press any key to continue...");
+                        Console.WriteLine("Returning to main menu.");
+                        Console.WriteLine("Press ENTER to continue...");
                         Console.ReadKey(true);
                         break;
                     default:
