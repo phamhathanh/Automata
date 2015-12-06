@@ -4,19 +4,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using Automata;
+using Automata.Logic;
 
 namespace Automata
 {
     class AutomatonViewModel : INotifyPropertyChanged
     {
+        private const char epsilon = 'ε';
+
         private Graph graph;
         private Node dummy;
 
         private int initialStateIndex;
-        private ObservableCollection<SymbolViewModel> symbols;
+        private ObservableCollection<CharacterViewModel> characters;
         private ObservableCollection<StateViewModel> states;
         private ObservableCollection<TransitionViewModel> transitions;
+
+        private FiniteAutomaton automaton;
 
         public Graph Graph
         {
@@ -36,23 +40,24 @@ namespace Automata
             {
                 DrawInitialEdge(initialStateIndex, value);
                 initialStateIndex = value;
+
                 if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("InitialStateIndex"));
                 }
             }
         }
-        public ObservableCollection<SymbolViewModel> Symbols
+        public ObservableCollection<CharacterViewModel> Characters
         {
             get
             {
-                return symbols;
+                return characters;
             }
             set
             {
-                symbols = value;
+                characters = value;
                 if (PropertyChanged != null)
-                    PropertyChanged(this, new PropertyChangedEventArgs("Symbols"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Characters"));
             }
         }
         public ObservableCollection<StateViewModel> States
@@ -94,6 +99,10 @@ namespace Automata
             ResetAll();
         }
 
+        private void OnModelChanged(object sender, EventArgs e)
+        {
+        }
+
         public void AddState(string id, bool isAccepting)
         {
             if (IsDuplicated(id))
@@ -122,28 +131,26 @@ namespace Automata
             return false;
         }
 
-        public void AddTransition(string currentStateID, char symbol, string nextStateID)
+        public void AddTransition(string currentStateID, char character, string nextStateID)
         {
             if (States.Count == 0)
                 throw new InvalidOperationException("State collection is empty.");
 
-            if (!IsInAlphabet(symbol))
-                throw new ArgumentException("Symbol is not in the alphabet.");
+            if (!IsInAlphabet(character))
+                throw new ArgumentException("Character is not in the alphabet.");
 
-            char symbolChar = symbol;
-
-            TransitionViewModel transition = new TransitionViewModel(currentStateID, symbolChar, nextStateID);
+            TransitionViewModel transition = new TransitionViewModel(currentStateID, character, nextStateID);
             if (transitions.Contains(transition))
                 throw new ArgumentException("Transition is already defined.");
 
             transitions.Add(transition);
-            graph.AddEdge(currentStateID, symbolChar.ToString(), nextStateID);
+            graph.AddEdge(currentStateID, character.ToString(), nextStateID);
         }
 
-        private bool IsInAlphabet(char symbol)
+        private bool IsInAlphabet(char character)
         {
-            foreach (var presentSymbol in Symbols)
-                if (presentSymbol.Symbol == symbol)
+            foreach (var characterVM in Characters)
+                if (characterVM.Character == character)
                     return true;
 
             return false;
@@ -151,24 +158,24 @@ namespace Automata
 
         public void ResetAll()
         {
-            Symbols = new ObservableCollection<SymbolViewModel>();
+            Characters = new ObservableCollection<CharacterViewModel>();
             ResetStates();
         }
 
-        public void ResetAlphabet(char[] symbols)
+        public void ResetAlphabet(char[] characters)
         {
-            symbols = symbols.Distinct().ToArray();
-            Array.Sort(symbols);
+            characters = characters.Distinct().ToArray();
+            Array.Sort(characters);
 
-            List<SymbolViewModel> validSymbols = new List<SymbolViewModel>();
-            validSymbols.Add(new SymbolViewModel('ε'));
-            foreach (char symbol in symbols)
-                if (char.IsLetterOrDigit(symbol))
-                    validSymbols.Add(new SymbolViewModel(symbol));
+            var validCharacters = new List<CharacterViewModel>();
+            validCharacters.Add(new CharacterViewModel(epsilon));
+            foreach (char character in characters)
+                if (char.IsLetterOrDigit(character))
+                    validCharacters.Add(new CharacterViewModel(character));
 
-            Symbols = new ObservableCollection<SymbolViewModel>(validSymbols);
-            
-            if (this.symbols.Count == 0)
+            Characters = new ObservableCollection<CharacterViewModel>(validCharacters);
+
+            if (this.characters.Count == 0)
                 throw new ArgumentException("No valid character.");
 
             ResetStates();
@@ -186,7 +193,7 @@ namespace Automata
 
         private void ResetGraphNodes()
         {
-            if (graph.NodeCount < 2)
+            if (graph.NodeCount < 2)    // 1 dummy node
                 return;
 
             List<Node> toBeRemoved = new List<Node>(graph.NodeCount);
@@ -239,31 +246,32 @@ namespace Automata
 
         public bool AcceptString(string input)
         {
-            if (symbols == null || states.Count == 0 || transitions.Count == 0)
+            if (characters == null || states.Count == 0 || transitions.Count == 0)
                 throw new InvalidOperationException("Automaton is not completed.");
-            foreach (char c in input)
-                if (!IsInAlphabet(c))
-                    throw new ArgumentException("Symbol is not in the alphabet.");
+            foreach (char character in input)
+                if (!IsInAlphabet(character))
+                    throw new ArgumentException("Character is not in the alphabet.");
 
-            FiniteAutomaton automaton = GenerateAutomaton();
+            AutomatonFromViewModel();
+            
             return automaton.AcceptString(input);
         }
 
-        private FiniteAutomaton GenerateAutomaton()
+        private void AutomatonFromViewModel()
         {
-            List<Symbol> symbols = new List<Symbol>(Symbols.Count);
-            foreach (var s in Symbols)
-                if (s.Symbol != 'ε')
-                    symbols.Add(new Symbol(s.Symbol));
-            Alphabet alphabet = new Alphabet(symbols.ToArray());
+            var characters = new List<char>(Characters.Count);
+            foreach (var characterVM in Characters)
+                if (characterVM.Character != epsilon)
+                    characters.Add(characterVM.Character);
+            var alphabet = characters.ToArray();
 
-            List<Transition> transitions = new List<Transition>(Transitions.Count);
+            var transitions = new List<Transition>(Transitions.Count);
             foreach (var transition in Transitions)
             {
                 int currentStateIndex = IndexFromID(transition.CurrentStateID),
                     nextStateIndex = IndexFromID(transition.NextStateID);
-                Symbol symbol = transition.Symbol;
-                transitions.Add(new Transition(currentStateIndex, symbol, nextStateIndex));
+                char character = transition.Character;
+                transitions.Add(new Transition(currentStateIndex, character, nextStateIndex));
             }
 
             List<int> acceptingStateIndexes = new List<int>();
@@ -271,8 +279,48 @@ namespace Automata
                 if (state.IsAccepting)
                     acceptingStateIndexes.Add(IndexFromID(state.ID));
 
-            return new FiniteAutomaton(States.Count, alphabet, transitions.ToArray(),
+            automaton = new FiniteAutomaton(States.Count, alphabet, transitions.ToArray(),
                                         InitialStateIndex, acceptingStateIndexes.ToArray());
+        }
+
+        private void ViewModelFromAutomaton()
+        {
+            var acceptings = automaton.AcceptingIndexes;
+            int statesCount = automaton.StatesCount;
+            for (int i = 0; i < statesCount; i++)
+            {
+                bool isAccepting = acceptings.Contains(i);
+                AddState(i.ToString(), isAccepting);
+            }
+
+            var transitions = automaton.Transitions;
+            foreach (var transition in transitions)
+            {
+                string currentStateID = transition.CurrentStateIndex.ToString(),
+                        nextStateID = transition.NextStateIndex.ToString();
+                char character = transition.Character;
+                AddTransition(currentStateID, character, nextStateID);
+            }
+        }
+
+        public void ConvertToDFA()
+        {
+            AutomatonFromViewModel();
+
+            ResetStates();
+
+            automaton = automaton.ToDFA();
+            ViewModelFromAutomaton();
+        }
+
+        public void Minimize()
+        {
+            AutomatonFromViewModel();
+
+            ResetStates();
+
+            automaton = automaton.ToMinimizedDFA();
+            ViewModelFromAutomaton();
         }
 
         private int IndexFromID(string stateID)

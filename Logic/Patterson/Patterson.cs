@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class Patterson
+    public class Patterson
     {
-        private readonly RegularLanguage language;
+        private readonly string expression;
         private readonly List<string> element;
 
-        public Patterson(RegularLanguage language)
+        public Patterson(string expression)
         {
-            this.language = language;
-            int elementCount = this.language.Expression.Split('|').ToList().Count;
-            List<string> listSplit = this.language.Expression.Substring(1, this.language.Expression.ToString().Length - 2).Split('|').ToList();
+            this.expression = expression;
+            int elementCount = expression.Split('|').ToList().Count;
+            List<string> listSplit = expression.Substring(1, expression.Length - 2).Split('|').ToList();
             this.element = listSplit;
 
         }

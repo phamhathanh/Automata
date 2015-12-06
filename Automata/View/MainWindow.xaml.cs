@@ -23,8 +23,7 @@ namespace Automata
             InitializeComponent();
 
 #if DEBUG
-            //Test.RunTest();
-            Program.ConsoleUI();
+            Program.ShowConsoleUI();
 #endif
         }
 
@@ -54,7 +53,7 @@ namespace Automata
         private void addTransitionButton_Click(object sender, RoutedEventArgs e)
         {
             string currentStateID = currentStateComboBox.Text,
-                           symbol = symbolComboBox.Text,
+                           character = characterComboBox.Text,
                       nextStateID = nextStateComboBox.Text;
 
             if (!stateList.HasItems)
@@ -63,17 +62,17 @@ namespace Automata
                 return;
             }
 
-            if (currentStateID == "" || symbol == "" || nextStateID == "")
+            if (currentStateID == "" || character == "" || nextStateID == "")
             {
-                MessageBox.Show("Please select a starting state, a symbol and an ending state.");
+                MessageBox.Show("Please select a starting state, a character and an ending state.");
                 return;
             }
 
-            Debug.Assert(symbol.Length == 1);
+            Debug.Assert(character.Length == 1);
 
             try
             {
-                ViewModel.AddTransition(currentStateID, symbol[0], nextStateID);
+                ViewModel.AddTransition(currentStateID, character[0], nextStateID);
             }
             catch (ArgumentException)
             {
@@ -104,20 +103,28 @@ namespace Automata
                 return;
             }
 
-            List<char> symbols = new List<char>();
-            foreach (char symbol in alphabetTextBox.Text)
-                if (char.IsLetterOrDigit(symbol))
-                    symbols.Add(symbol);
-
-            if (symbols.Count == 0)
+            string alphabetString = alphabetTextBox.Text;
+            var characters = new List<char>(alphabetString.Length);
+            foreach (char character in alphabetString)
             {
-                MessageBox.Show("Please enter at least a valid character.", "Error");
+                if (!char.IsLetterOrDigit(character))
+                {
+                    MessageBox.Show("Please enter only letters or digits.", "Error");
+                    return;
+                }
+                if (!characters.Contains(character))
+                    characters.Add(character);
+            }
+
+            if (characters.Count == 0)
+            {
+                MessageBox.Show("Please enter some characters.", "Error");
                 return;
             }
 
             try
             {
-                ViewModel.ResetAlphabet(symbols.ToArray());
+                ViewModel.ResetAlphabet(characters.ToArray());
             }
             catch (ArgumentException)
             {
@@ -164,6 +171,30 @@ namespace Automata
         private void inputTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             inputTextBox.Background = SystemColors.WindowBrush;
+        }
+
+        private void convertButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!stateList.HasItems)
+            {
+                MessageBox.Show("Please add some states first.", "Error");
+                return;
+            }
+
+            ViewModel.ConvertToDFA();
+            UpdateGraph();
+        }
+
+        private void minimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!stateList.HasItems)
+            {
+                MessageBox.Show("Please add some states first.", "Error");
+                return;
+            }
+
+            ViewModel.Minimize();
+            UpdateGraph();
         }
     }
 }

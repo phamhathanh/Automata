@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Automata
 {
-    class ContextFreeGrammar
+    public class ContextFreeGrammar
     {
         private readonly GrammarSymbol[] nonterminals, terminals, alphabet;
         private readonly GrammarSymbol starting;

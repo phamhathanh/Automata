@@ -4,17 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Automata.Logic;
 
-namespace Automata
+namespace Automata.Test
 {
-    static class Test
+    class Program
     {
-        public static void RunTest()
+        static void Main(string[] args)
         {
-            GrammarTest();
-            RegexTest();
-            PattersonTest();
-            CYKTest();
+            //GrammarTest();
+            //RegexTest();
+            //PattersonTest();
+            //CYKTest();
+            NFAToDFA();
+
+            Console.WriteLine();
+            Console.WriteLine("All tests are passed.");
+            Console.WriteLine("Press ENTER to continue.");
+            Console.ReadLine();
         }
 
         private static void GrammarTest()
@@ -51,10 +58,8 @@ namespace Automata
 
         private static void PattersonTest()
         {
-            string pattern = "ab|aba|abba|babaa";
-
-            RegularLanguage language = new RegularLanguage(pattern);
-            Patterson patterson = new Patterson(language);
+            string expression = "ab|aba|abba|babaa";
+            Patterson patterson = new Patterson(expression);
             bool isUniquelyDecodable = patterson.IsUniquelyDecodable();
             Debug.Assert(isUniquelyDecodable);
         }
@@ -74,6 +79,29 @@ namespace Automata
                      sentence2 = new[] { "0", "0", "0", "1", "1", "1" };
             Debug.Assert(!normalForm.HasSentence(sentence1));
             Debug.Assert(normalForm.HasSentence(sentence2));
+        }
+
+        private static void NFAToDFA()
+        {
+            var alphabet = new[] { '0', '1' };
+            int statesCount = 4,
+                initialIndex = 0;
+            int[] acceptingIndexes = new[] { 2, 3 };
+            var transitions = new[] { new Transition(0, 'ε', 2),
+                                      new Transition(0, '0', 1),
+                                      new Transition(1, '1', 1),
+                                      new Transition(1, '1', 3),
+                                      new Transition(2, 'ε', 1),
+                                      new Transition(2, '0', 3),
+                                      new Transition(3, '0', 2) };
+
+            var nfa = new FiniteAutomaton(statesCount, alphabet, transitions, initialIndex, acceptingIndexes);
+            var dfa = nfa.ToDFA();
+
+            int dfaStatesCount = dfa.StatesCount;
+            int dfaAcceptingsCount = dfa.AcceptingIndexes.Count();
+            Debug.Assert(dfaStatesCount == 5);
+            Debug.Assert(dfaAcceptingsCount == 4);
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿namespace Automata
+﻿namespace Automata.Logic
 {
-    class Transition
+    public class Transition
     {
         private readonly int currentStateIndex, nextStateIndex;
-        private readonly Symbol symbol;
+        private readonly char character;
 
         public int CurrentStateIndex
         {
@@ -21,18 +21,18 @@
             }
         }
 
-        public Symbol Symbol
+        public char Character
         {
             get
             {
-                return symbol;
+                return character;
             }
         }
 
-        public Transition(int currentStateIndex, Symbol symbol, int nextStateIndex)
+        public Transition(int currentStateIndex, char character, int nextStateIndex)
         {
             this.currentStateIndex = currentStateIndex;
-            this.symbol = symbol;
+            this.character = character;
             this.nextStateIndex = nextStateIndex;
         }
 
@@ -40,7 +40,7 @@
         {
             return transition1.currentStateIndex == transition2.currentStateIndex
                 && transition1.nextStateIndex == transition2.nextStateIndex
-                && transition1.symbol == transition2.symbol;
+                && transition1.character == transition2.character;
         }
 
         public static bool operator !=(Transition transition1, Transition transition2)
@@ -55,9 +55,12 @@
 
         public override int GetHashCode()
         {
-            return 7 * currentStateIndex.GetHashCode()
-                + 17 * symbol.GetHashCode()
-                + 37 * nextStateIndex.GetHashCode();
+            unchecked
+            {
+                return 7 * currentStateIndex.GetHashCode()
+                    + 17 * character.GetHashCode()
+                    + 37 * nextStateIndex.GetHashCode();
+            }
         }
     }
 }

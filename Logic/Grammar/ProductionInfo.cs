@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Automata
 {
-    class ProductionInfo
+    public class ProductionInfo
     {
         private readonly string original;
         private readonly string[] directDerivative;
