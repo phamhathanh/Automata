@@ -21,7 +21,6 @@ namespace Automata
         private ObservableCollection<TransitionViewModel> transitions;
 
         private FiniteAutomaton automaton;
-        private bool automatonChanged = true;
 
         public Graph Graph
         {
@@ -41,6 +40,7 @@ namespace Automata
             {
                 DrawInitialEdge(initialStateIndex, value);
                 initialStateIndex = value;
+
                 if (PropertyChanged != null)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("InitialStateIndex"));
@@ -97,13 +97,10 @@ namespace Automata
             dummy.IsVisible = false;
             graph.AddNode(dummy);
             ResetAll();
-
-            PropertyChanged += OnPropertyChanged;
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnModelChanged(object sender, EventArgs e)
         {
-            automatonChanged = true;
         }
 
         public void AddState(string id, bool isAccepting)
@@ -255,15 +252,12 @@ namespace Automata
                 if (!IsInAlphabet(character))
                     throw new ArgumentException("Character is not in the alphabet.");
 
-            if (automatonChanged)
-            {
-                GenerateAutomaton();
-                automatonChanged = false;
-            }
+            AutomatonFromViewModel();
+            
             return automaton.AcceptString(input);
         }
 
-        private void GenerateAutomaton()
+        private void AutomatonFromViewModel()
         {
             var characters = new List<char>(Characters.Count);
             foreach (var characterVM in Characters)
@@ -289,24 +283,17 @@ namespace Automata
                                         InitialStateIndex, acceptingStateIndexes.ToArray());
         }
 
-        public void ConvertToDFA()
+        private void ViewModelFromAutomaton()
         {
-            if (automatonChanged)
-                GenerateAutomaton();
-
-            ResetStates();
-
-            var dfa = automaton.GetEquivalentDFA();
-
-            var acceptings = dfa.AcceptingIndexes;
-            int statesCount = dfa.StatesCount;
+            var acceptings = automaton.AcceptingIndexes;
+            int statesCount = automaton.StatesCount;
             for (int i = 0; i < statesCount; i++)
             {
                 bool isAccepting = acceptings.Contains(i);
                 AddState(i.ToString(), isAccepting);
             }
 
-            var transitions = dfa.Transitions;
+            var transitions = automaton.Transitions;
             foreach (var transition in transitions)
             {
                 string currentStateID = transition.CurrentStateIndex.ToString(),
@@ -314,9 +301,26 @@ namespace Automata
                 char character = transition.Character;
                 AddTransition(currentStateID, character, nextStateID);
             }
+        }
 
-            automaton = dfa;
-            automatonChanged = false;
+        public void ConvertToDFA()
+        {
+            AutomatonFromViewModel();
+
+            ResetStates();
+
+            automaton = automaton.ToDFA();
+            ViewModelFromAutomaton();
+        }
+
+        public void Minimize()
+        {
+            AutomatonFromViewModel();
+
+            ResetStates();
+
+            automaton = automaton.ToMinimizedDFA();
+            ViewModelFromAutomaton();
         }
 
         private int IndexFromID(string stateID)

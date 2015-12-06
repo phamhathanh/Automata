@@ -108,7 +108,7 @@ namespace Automata.Logic
             this.acceptings = new State[acceptingsCount];
             for (int i = 0; i < acceptingsCount; i++)
                 this.acceptings[i] = StateFromIndex(acceptingIndexes[i]);
-            
+
             this.initial = StateFromIndex(initialIndex);
 
             if (ArrayHasDuplicates(transitions))
@@ -120,11 +120,11 @@ namespace Automata.Logic
             this.table.WrapUp();
         }
 
-        internal FiniteAutomaton(IEnumerable<State> states, char[] alphabet, State initial, 
+        internal FiniteAutomaton(IEnumerable<State> states, char[] alphabet, State initial,
                                 IEnumerable<State> acceptings, TransitionTable table)
         {
             this.states = states.ToArray();
-            
+
             ValidateAlphabet(alphabet);
             this.alphabet = new Alphabet(alphabet);
 
@@ -145,7 +145,7 @@ namespace Automata.Logic
             foreach (var state in tableStates)
                 if (!states.Contains(state))
                     throw new ArgumentException("Invalid table.");
-            var tableChars = table.GetAllCharacters();
+            var tableChars = table.GetAllCharactersIncludingEpsilon();
             foreach (var character in tableChars)
                 ValidateChar(character);
             this.table = table;
@@ -224,16 +224,21 @@ namespace Automata.Logic
         {
             foreach (var state in currents)
             {
-                if  (acceptings.Contains(state))
+                if (acceptings.Contains(state))
                     return true;
             }
 
             return false;
         }
 
-        public FiniteAutomaton GetEquivalentDFA()
+        public FiniteAutomaton ToDFA()
         {
-            // powerset construction
+            // Algorithm: Powerset Construction
+
+            bool isAlreadyDeterministic = IsDeterministic();
+            if (isAlreadyDeterministic)
+                return this;
+
 
             List<State> dfaStates = new List<State>(),
                     dfaAcceptings = new List<State>();
@@ -284,6 +289,24 @@ namespace Automata.Logic
             return new FiniteAutomaton(dfaStates, alphabet.ToArray(), dfaInitial, dfaAcceptings, dfaTable);
         }
 
+        private bool IsDeterministic()
+        {
+            foreach (var state in states)
+            {
+                foreach (char character in alphabet)
+                {
+                    var nexts = table.GetNextStates(state, character);
+                    if (nexts.Count() != 1)
+                        return false;
+                }
+                var epsilonMove = table.GetNextStates(state, Alphabet.Epsilon);
+                if (epsilonMove.Count() > 0)
+                    return false;
+            }
+
+            return true;
+        }
+
         private class OrderIndependentStatesComparer : EqualityComparer<IEnumerable<State>>
         {
             public override bool Equals(IEnumerable<State> states1, IEnumerable<State> states2)
@@ -295,7 +318,7 @@ namespace Automata.Logic
             {
                 // hashcode is order-independent
 
-                List<int> hashes = new List<int>();
+                var hashes = new List<int>();
                 foreach (var state in states)
                     hashes.Add(state.GetHashCode());
                 hashes.Sort();
@@ -309,6 +332,291 @@ namespace Automata.Logic
                     }
 
                 return output;
+            }
+        }
+
+        public FiniteAutomaton ToMinimizedDFA()
+        {
+            var dfa = this.ToDFA();
+            return dfa.Minimize();
+        }
+
+        private FiniteAutomaton Minimize()
+        {
+            // Algorithm: Table-filling
+            // must operate on a DFA, or else
+
+
+            var considerations = new Queue<StatePair>();
+            var allPairs = new List<StatePair>();
+
+            var reachableStates = GetReachableStates().ToArray();
+#if DEBUG
+            bool duplicatedStates = reachableStates.Distinct().Count() > reachableStates.Length;
+            Debug.Assert(!duplicatedStates);
+#endif
+
+            foreach (var pair in GetAllPairs(reachableStates))
+            {
+                allPairs.Add(pair);
+                bool canBeMarked = CanBeConcludedDistinguishable(pair);
+                if (canBeMarked)
+                    pair.Mark();
+                else
+                    considerations.Enqueue(pair);
+            }
+
+            while (considerations.Count > 0)
+            {
+                var thisPair = considerations.Dequeue();
+                foreach (char character in alphabet)
+                {
+                    var nextPair = GetNextPair(thisPair, character);
+                    if (nextPair.State1 == nextPair.State2)
+                        continue;
+
+                    var matches = from pair in allPairs
+                                  where pair == nextPair
+                                  select pair;
+                    Debug.Assert(matches.Count() == 1);
+                    var match = matches.First();
+
+                    if (match.IsMarked)
+                    {
+                        thisPair.Mark();
+                        break;
+                    }
+                    else if (considerations.Contains(match))
+                        match.AddEquivalentPair(thisPair);
+                }
+            }
+
+            var minimizedToDFA = new Dictionary<State, List<State>>();
+            var dfaToMinimized = new Dictionary<State, State>();
+            foreach (var dfaState in reachableStates)
+            {
+                var equivalentClass = new List<State>();
+                equivalentClass.Add(dfaState);
+                var minimizedState = new State();
+                minimizedToDFA.Add(minimizedState, equivalentClass);
+                dfaToMinimized.Add(dfaState, minimizedState);
+            }
+            foreach (var pair in allPairs)
+            {
+                if (!pair.IsMarked)
+                {
+                    State minimized1, minimized2;
+                    bool success1 = dfaToMinimized.TryGetValue(pair.State1, out minimized1),
+                         success2 = dfaToMinimized.TryGetValue(pair.State2, out minimized2);
+
+                    Debug.Assert(success1);
+                    Debug.Assert(success2);
+
+                    List<State> class1, class2;
+                    success1 = minimizedToDFA.TryGetValue(minimized1, out class1);
+                    success2 = minimizedToDFA.TryGetValue(minimized2, out class2);
+
+                    Debug.Assert(success1);
+                    Debug.Assert(success2);
+
+                    class1.AddRange(class2);
+                    minimizedToDFA.Remove(minimized2);
+                    dfaToMinimized[pair.State2] = minimized1;
+                }
+            }
+
+            var newTable = new TransitionTable();
+            var transitions = table.GetAllTransitions();
+            foreach (var transition in transitions)
+            {
+                char character = transition.Item2;
+                State dfaCurrent = transition.Item1,
+                        dfaNext = transition.Item3;
+
+                bool isIsolated = !reachableStates.Contains(dfaCurrent);
+                if (isIsolated)
+                    continue;
+
+                State minimizedCurrent = dfaToMinimized[dfaCurrent],
+                    minimizedNext = dfaToMinimized[dfaNext];
+
+                bool merged = dfaCurrent != dfaNext && minimizedCurrent == minimizedNext;
+                if (merged)
+                    continue;
+
+                var nextStates = newTable.GetNextStates(minimizedCurrent, character);
+                bool duplicate = nextStates.Contains(minimizedNext);
+                if (!duplicate)
+                    newTable.Add(minimizedCurrent, character, minimizedNext);
+            }
+
+            var newStates = from equivalence in minimizedToDFA
+                            select equivalence.Key;
+            var newInitial = dfaToMinimized[initial];
+            var newAccepting = from equivalence in minimizedToDFA
+                               where acceptings.Contains(equivalence.Value.First())
+                               select equivalence.Key;
+
+            return new FiniteAutomaton(newStates.ToArray(), alphabet.ToArray(), newInitial, newAccepting, newTable);
+        }
+
+        private IEnumerable<State> GetReachableStates()
+        {
+            var yielded = new List<State>();
+            var considerations = new Queue<State>();
+
+            yield return initial;
+            yielded.Add(initial);
+            considerations.Enqueue(initial);
+
+            while (considerations.Count != 0)
+            {
+                var state = considerations.Dequeue();
+                foreach (char character in alphabet)
+                {
+                    var reachableStates = table.GetNextStates(state, character);
+                    foreach (State reachable in reachableStates)
+                    {
+                        bool alreadyConsidered = yielded.Contains(reachable);
+                        if (!alreadyConsidered)
+                        {
+                            yield return reachable;
+                            yielded.Add(reachable);
+                            considerations.Enqueue(reachable);
+                        }
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<StatePair> GetAllPairs(IEnumerable<State> states)
+        {
+            var stateArray = states.ToArray();
+            int statesCount = stateArray.Length;
+            for (int i = 0; i < statesCount - 1; i++)
+                for (int j = statesCount - 1; j > i; j--)
+                {
+                    var pair = new StatePair(stateArray[i], stateArray[j]);
+                    yield return pair;
+                }
+        }
+
+        private bool CanBeConcludedDistinguishable(StatePair pair)
+        {
+            var state1 = pair.State1;
+            var state2 = pair.State2;
+            bool isAccepting1 = acceptings.Contains(state1),
+                 isAccepting2 = acceptings.Contains(state2);
+
+            return isAccepting1 != isAccepting2;
+        }
+
+        private StatePair GetNextPair(StatePair current, char character)
+        {
+            State state1 = current.State1,
+                  state2 = current.State2;
+
+            var nextStates1 = table.GetNextStates(state1, character);
+            var nextStates2 = table.GetNextStates(state2, character);
+
+            Debug.Assert(nextStates1.Count() == 1);
+            Debug.Assert(nextStates2.Count() == 1);
+
+            State next1 = nextStates1.First(),
+                  next2 = nextStates2.First();
+
+            return new StatePair(next1, next2);
+        }
+
+        private class StatePair : IEquatable<StatePair>
+        {
+            private readonly State state1, state2;
+            private List<StatePair> equivalentPairs;
+            private bool isMarked;
+
+            public State State1
+            {
+                get
+                {
+                    return state1;
+                }
+            }
+            public State State2
+            {
+                get
+                {
+                    return state2;
+                }
+            }
+
+            public bool IsMarked
+            {
+                get
+                {
+                    return isMarked;
+                }
+            }
+
+            public StatePair(State state1, State state2)
+            {
+                this.state1 = state1;
+                this.state2 = state2;
+
+                this.isMarked = false;
+
+                this.equivalentPairs = new List<StatePair>();
+            }
+
+            public void Mark()
+            {
+                if (isMarked)
+                    return;
+
+                isMarked = true;
+                foreach (var pair in equivalentPairs)
+                    pair.Mark();
+            }
+
+            public void AddEquivalentPair(StatePair pair)
+            {
+                equivalentPairs.Add(pair);
+            }
+
+            public static bool operator ==(StatePair pair1, StatePair pair2)
+            {
+                return (pair1.state1 == pair2.state1 && pair1.state2 == pair2.state2)
+                    || (pair1.state2 == pair2.state1 && pair1.state1 == pair2.state2);
+            }
+
+            public static bool operator !=(StatePair pair1, StatePair pair2)
+            {
+                return !(pair1 == pair2);
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is StatePair && this == (StatePair)obj;
+            }
+
+            public override int GetHashCode()
+            {
+                // hashcode is order-independent
+
+                int hash1 = state1.GetHashCode(),
+                    hash2 = state2.GetHashCode();
+
+                unchecked
+                {
+                    if (hash1 < hash2)
+                        return hash1 + 251 * hash2;
+                    else
+                        return hash2 + 251 * hash1;
+                }
+            }
+
+            public bool Equals(StatePair other)
+            {
+                return this == other;
             }
         }
     }

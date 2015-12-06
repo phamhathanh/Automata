@@ -175,7 +175,25 @@ namespace Automata
 
         private void convertButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!stateList.HasItems)
+            {
+                MessageBox.Show("Please add some states first.", "Error");
+                return;
+            }
+
             ViewModel.ConvertToDFA();
+            UpdateGraph();
+        }
+
+        private void minimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!stateList.HasItems)
+            {
+                MessageBox.Show("Please add some states first.", "Error");
+                return;
+            }
+
+            ViewModel.Minimize();
             UpdateGraph();
         }
     }

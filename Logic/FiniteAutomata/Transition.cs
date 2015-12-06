@@ -55,9 +55,12 @@
 
         public override int GetHashCode()
         {
-            return 7 * currentStateIndex.GetHashCode()
-                + 17 * character.GetHashCode()
-                + 37 * nextStateIndex.GetHashCode();
+            unchecked
+            {
+                return 7 * currentStateIndex.GetHashCode()
+                    + 17 * character.GetHashCode()
+                    + 37 * nextStateIndex.GetHashCode();
+            }
         }
     }
 }

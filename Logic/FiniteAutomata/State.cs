@@ -2,6 +2,11 @@
 {
     class State
     {
-        // lol nothing here
+#if DEBUG
+        public override string ToString()
+        {
+            return GetHashCode().ToString();
+        }
+#endif
     }
 }

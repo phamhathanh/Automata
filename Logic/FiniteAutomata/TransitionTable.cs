@@ -32,7 +32,10 @@ namespace Automata.Logic
                 transitions.Add(key, nextStates);
             }
 
-            Debug.Assert(!nextStates.Contains(next));
+            bool duplicate = nextStates.Contains(next);
+            if (duplicate)
+                throw new InvalidOperationException("Transition is duplicated.");
+
             nextStates.Add(next);
         }
 
@@ -57,7 +60,7 @@ namespace Automata.Logic
             }
         }
 
-        public IEnumerable<char> GetAllCharacters()
+        public IEnumerable<char> GetAllCharactersIncludingEpsilon()
         {
             var yielded = new List<char>();
             foreach (var transition in transitions)
@@ -97,13 +100,26 @@ namespace Automata.Logic
 
         public IEnumerable<State> GetNextStates(IEnumerable<State> states, char character)
         {
+            var yielded = new List<State>();
             foreach (State state in states)
             {
                 var nextStates = GetNextStatesOfSingleState(state, character);
                 var closure = EpsilonClosure(nextStates);
                 foreach (State nextState in closure)
-                    yield return nextState;
+                    if (!yielded.Contains(nextState))
+                    {
+                        yield return nextState;
+                        yielded.Add(nextState);
+                    }
             }
+        }
+
+        public IEnumerable<State> GetNextStates(State state, char character)
+        {
+            var nextStates = GetNextStatesOfSingleState(state, character);
+            var closure = EpsilonClosure(nextStates);
+            foreach (State nextState in closure)
+                    yield return nextState;
         }
 
         private IEnumerable<State> GetNextStatesOfSingleState(State current, char character)
@@ -130,22 +146,24 @@ namespace Automata.Logic
 
         private IEnumerable<State> EpsilonClosure(IEnumerable<State> states)
         {
+            foreach (var state in states)
+                yield return state;
+            var closure = states.ToList();
             var considerations = new Queue<State>(states);
-            var closure = new List<State>(considerations.Count);
 
             while (considerations.Count != 0)
             {
                 var state = considerations.Dequeue();
-                yield return state;
-                closure.Add(state);
-
                 var epsilonStates = GetNextStatesOfSingleState(state, Alphabet.Epsilon);
                 foreach (State epsilonState in epsilonStates)
                 {
-                    bool alreadyConsidered = closure.Contains(epsilonState),
-                         isBeingConsidered = considerations.Contains(epsilonState);
-                    if (!alreadyConsidered && !isBeingConsidered)
+                    bool alreadyConsidered = closure.Contains(epsilonState);
+                    if (!alreadyConsidered)
+                    {
+                        yield return epsilonState;
+                        closure.Add(epsilonState);
                         considerations.Enqueue(epsilonState);
+                    }
                 }
             }
         }

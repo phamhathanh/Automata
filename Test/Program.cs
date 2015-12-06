@@ -96,7 +96,7 @@ namespace Automata.Test
                                       new Transition(3, '0', 2) };
 
             var nfa = new FiniteAutomaton(statesCount, alphabet, transitions, initialIndex, acceptingIndexes);
-            var dfa = nfa.GetEquivalentDFA();
+            var dfa = nfa.ToDFA();
 
             int dfaStatesCount = dfa.StatesCount;
             int dfaAcceptingsCount = dfa.AcceptingIndexes.Count();
